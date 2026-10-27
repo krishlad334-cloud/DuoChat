@@ -1,0 +1,54 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1',
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#312e81',
+          950: '#1e1b4b',
+        },
+        chat: {
+          darkBg: '#0f172a',
+          darkPanel: '#1e293b',
+          darkHeader: '#1e293b',
+          darkCard: '#334155',
+          darkBorder: '#334155',
+          darkSent: '#4f46e5',
+          darkReceived: '#1e293b',
+          lightBg: '#f8fafc',
+          lightPanel: '#ffffff',
+          lightHeader: '#f1f5f9',
+          lightBorder: '#e2e8f0',
+          lightSent: '#4f46e5',
+          lightReceived: '#f1f5f9'
+        }
+      },
+      keyframes: {
+        bounceDot: {
+          '0%, 80%, 100%': { transform: 'scale(0)' },
+          '40%': { transform: 'scale(1.0)' },
+        }
+      },
+      animation: {
+        'bounce-dot-1': 'bounceDot 1.4s infinite ease-in-out both',
+        'bounce-dot-2': 'bounceDot 1.4s infinite ease-in-out 0.2s both',
+        'bounce-dot-3': 'bounceDot 1.4s infinite ease-in-out 0.4s both',
+      }
+    },
+  },
+  plugins: [],
+}

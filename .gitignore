@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production builds
+dist/
+build/
+client/dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+server/.env
+
+# Database & local data
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+data/
+server/data/*.sqlite*
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

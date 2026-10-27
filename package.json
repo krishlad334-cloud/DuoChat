@@ -1,0 +1,15 @@
+{
+  "name": "duo-chat",
+  "version": "1.0.0",
+  "description": "Production-quality real-time chat application with React, Express, Socket.IO and SQLite",
+  "scripts": {
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "seed": "cd server && npm run seed",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "dev": "node start-dev.js"
+  },
+  "keywords": ["chat", "realtime", "socketio", "react", "express", "sqlite"]
+}
