@@ -26,9 +26,10 @@ export function getRandomColor(str) {
     'bg-teal-500',
     'bg-cyan-500'
   ];
+  const text = str ? String(str) : 'User';
   let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < text.length; i++) {
+    hash = text.charCodeAt(i) + ((hash << 5) - hash);
   }
   return colors[Math.abs(hash) % colors.length];
 }

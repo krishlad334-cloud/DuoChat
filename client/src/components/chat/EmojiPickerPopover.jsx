@@ -76,10 +76,10 @@ export default function EmojiPickerPopover({ isOpen, onClose, onSelectEmoji }) {
   return (
     <div
       ref={popoverRef}
-      className="absolute bottom-16 right-4 sm:right-12 z-50 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150"
+      className="absolute bottom-16 left-2 sm:left-4 z-50 w-72 sm:w-80 max-w-[calc(100vw-24px)] bg-white dark:bg-[#17212b] border border-zinc-200 dark:border-[#242f3d] rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150"
     >
       {/* Category Tabs */}
-      <div className="flex items-center justify-between px-2 pt-2 border-b border-slate-100 dark:border-slate-800">
+      <div className="flex items-center justify-between px-2 pt-2 border-b border-zinc-100 dark:border-[#242f3d]">
         <div className="flex gap-1">
           {EMOJI_CATEGORIES.map((cat, idx) => (
             <button
@@ -91,8 +91,8 @@ export default function EmojiPickerPopover({ isOpen, onClose, onSelectEmoji }) {
               }}
               className={`p-2 text-base rounded-lg transition ${
                 activeCategory === idx && !search
-                  ? 'bg-indigo-50 dark:bg-indigo-950/60 ring-1 ring-indigo-500/30'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-[#3390ec]/15 dark:bg-[#5288c1]/20 ring-1 ring-[#3390ec]/30'
+                  : 'hover:bg-zinc-100 dark:hover:bg-[#202b36]'
               }`}
               title={cat.name}
             >
@@ -103,7 +103,7 @@ export default function EmojiPickerPopover({ isOpen, onClose, onSelectEmoji }) {
         <button
           type="button"
           onClick={onClose}
-          className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="p-1.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-lg hover:bg-zinc-100 dark:hover:bg-[#202b36]"
         >
           <X className="w-4 h-4" />
         </button>
@@ -116,7 +116,7 @@ export default function EmojiPickerPopover({ isOpen, onClose, onSelectEmoji }) {
             key={i}
             type="button"
             onClick={() => onSelectEmoji(emoji)}
-            className="w-8 h-8 flex items-center justify-center text-lg hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg active:scale-110 transition select-none"
+            className="w-8 h-8 flex items-center justify-center text-lg hover:bg-zinc-100 dark:hover:bg-[#202b36] rounded-lg active:scale-110 transition select-none"
           >
             {emoji}
           </button>
