@@ -1,7 +1,7 @@
 const { io } = require('./client/node_modules/socket.io-client');
 
 async function runTest() {
-  console.log('🧪 Starting WhatsApp Web Real-Time Phone Verification...');
+  console.log('🧪 Starting Duo Chat Real-Time Phone Verification...');
 
   // 1. Health check
   const healthRes = await fetch('http://localhost:5000/api/health');
@@ -19,7 +19,7 @@ async function runTest() {
         name: 'User Alpha',
         phone: phoneA,
         password: 'password123',
-        about: 'Hey there! I am using WhatsApp.'
+        about: 'Hey there! I am using Duo Chat.'
       })
     });
     const regData = await regRes.json();
@@ -53,7 +53,7 @@ async function runTest() {
         name: 'User Beta',
         phone: phoneB,
         password: 'password123',
-        about: 'Available on WhatsApp.'
+        about: 'Available on Duo Chat.'
       })
     });
     const regData = await regRes.json();
@@ -120,7 +120,7 @@ async function runTest() {
   ]);
 
   // 7. Test Message Delivery
-  const messageText = 'Hey! Sent via WhatsApp Web at ' + new Date().toLocaleTimeString();
+  const messageText = 'Hey! Sent via Duo Chat at ' + new Date().toLocaleTimeString();
   const receivePromise = new Promise(resolve => {
     socketB.once('new_message', msg => {
       console.log('✔ User B received new message:', msg.content, '| status:', msg.status);
@@ -160,7 +160,7 @@ async function runTest() {
   socketA.disconnect();
   socketB.disconnect();
 
-  console.log('\n🎉 ALL REAL-TIME PHONE & WHATSAPP TESTS PASSED SUCCESSFULLY!');
+  console.log('\n🎉 ALL DUO CHAT REAL-TIME TESTS PASSED SUCCESSFULLY!');
   process.exit(0);
 }
 

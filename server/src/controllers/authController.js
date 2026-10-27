@@ -66,7 +66,7 @@ const AuthController = {
       }
 
       // Email (optional or derived)
-      let cleanEmail = email ? email.trim().toLowerCase() : `${rawDigits}@whatsapp.local`;
+      let cleanEmail = email ? email.trim().toLowerCase() : `${rawDigits}@duochat.local`;
       if (email && email.trim()) {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
           return res.status(400).json({
@@ -87,8 +87,8 @@ const AuthController = {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      // Default WhatsApp style avatar
-      const userAvatar = avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=00a884,128c7e,25d366,008069`;
+      // Default Duo Chat avatar
+      const userAvatar = avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=7c3aed,4f46e5`;
 
       const newUser = UserModel.create({
         phone: cleanPhone,
@@ -96,7 +96,7 @@ const AuthController = {
         email: cleanEmail,
         password: hashedPassword,
         name: name.trim(),
-        about: about ? about.trim() : 'Hey there! I am using WhatsApp.',
+        about: about ? about.trim() : 'Hey there! I am using Duo Chat.',
         avatar: userAvatar
       });
 

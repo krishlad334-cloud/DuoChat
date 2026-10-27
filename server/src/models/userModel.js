@@ -10,8 +10,8 @@ const UserModel = {
     const cleanPhone = cleanPhoneDigits(phone);
     const rawDigits = cleanPhone.replace(/\+/g, '');
     const cleanUsername = username ? username.trim().toLowerCase() : (cleanPhone || ('user_' + Date.now()));
-    const cleanEmail = email ? email.trim().toLowerCase() : (rawDigits ? `${rawDigits}@whatsapp.local` : `user_${Date.now()}@whatsapp.local`);
-    const defaultAbout = about || 'Hey there! I am using WhatsApp.';
+    const cleanEmail = email ? email.trim().toLowerCase() : (rawDigits ? `${rawDigits}@duochat.local` : `user_${Date.now()}@duochat.local`);
+    const defaultAbout = about || 'Hey there! I am using Duo Chat.';
 
     const stmt = db.prepare(`
       INSERT INTO users (phone, username, email, password, name, about, avatar)

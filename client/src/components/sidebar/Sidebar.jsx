@@ -13,7 +13,7 @@ export default function Sidebar() {
   return (
     <>
       <div
-        className={`w-full md:w-80 lg:w-96 flex flex-col h-full border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all ${
+        className={`w-full md:w-80 lg:w-96 flex flex-col h-full border-r border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-[#121215] transition-all ${
           isMobileChatOpen ? 'hidden md:flex' : 'flex'
         }`}
       >

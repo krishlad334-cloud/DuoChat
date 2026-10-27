@@ -13,19 +13,31 @@
   }
 }
 
-/* Minimalist Modern Studio Background */
+/* Chat Wallpaper / Background Pattern (inspired by WhatsApp Web / Telegram) */
+.duo-chat-bg-light {
+  background-color: #f4f4f7;
+  background-image: radial-gradient(rgba(124, 58, 237, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.duo-chat-bg-dark {
+  background-color: #09090b;
+  background-image: radial-gradient(rgba(139, 92, 246, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
 .studio-chat-bg-light {
-  background-color: #fafafa;
+  background-color: #f4f4f7;
 }
 
 .studio-chat-bg-dark {
   background-color: #09090b;
 }
 
-/* Custom Minimalist Scrollbar */
+/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -33,7 +45,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(161, 161, 170, 0.3);
+  background: rgba(161, 161, 170, 0.35);
   border-radius: 9999px;
 }
 
