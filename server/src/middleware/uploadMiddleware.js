@@ -2,13 +2,22 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const uploadsDir = path.resolve(__dirname, '../../uploads');
+const uploadsDir = process.env.VERCEL ? '/tmp/uploads' : path.resolve(__dirname, '../../uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+  try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  } catch (err) {
+    console.error('Upload directory initialization warning:', err.message);
+  }
 }
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    if (!fs.existsSync(uploadsDir)) {
+      try {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      } catch (e) {}
+    }
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {

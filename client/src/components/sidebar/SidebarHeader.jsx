@@ -13,9 +13,11 @@ import {
   Phone,
   ShieldCheck,
   Search,
-  MessageSquarePlus
+  MessageSquarePlus,
+  Server
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import ServerSettingsModal from '../auth/ServerSettingsModal';
 
 export default function SidebarHeader({
   onOpenSearchUser,
@@ -26,6 +28,7 @@ export default function SidebarHeader({
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
 
   return (
     <>
@@ -163,6 +166,23 @@ export default function SidebarHeader({
 
               <div className="my-2 border-t border-zinc-200 dark:border-[#242f3d]" />
 
+              {/* Server Connection Setting */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                  setIsServerModalOpen(true);
+                }}
+                className="w-full px-3 py-2.5 rounded-xl flex items-center justify-between text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#242f3d] text-sm font-medium transition"
+              >
+                <span className="flex items-center gap-3.5">
+                  <Server className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+                  <span>Server Connection</span>
+                </span>
+              </button>
+
+              <div className="my-2 border-t border-zinc-200 dark:border-[#242f3d]" />
+
               <button
                 type="button"
                 onClick={logout}
@@ -181,6 +201,12 @@ export default function SidebarHeader({
           </div>
         </div>
       )}
+
+      {/* Server Settings Modal */}
+      <ServerSettingsModal
+        isOpen={isServerModalOpen}
+        onClose={() => setIsServerModalOpen(false)}
+      />
     </>
   );
 }

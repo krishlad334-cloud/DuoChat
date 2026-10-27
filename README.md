@@ -1,66 +1,68 @@
 # Duo Chat 🚀
-> Production-quality real-time messaging application with a modern, high-contrast UI/UX, Socket.IO instant synchronization, phone-number-based accounts, live presence, and permanent persistence.
+> Production-quality real-time messaging application inspired by Telegram Web UI/UX, built with React, Tailwind CSS, Express, Socket.IO, and permanent SQLite persistence.
 
 ---
 
 ## 🌟 Key Features
 
-1. **Modern Duo Chat UI / UX**:
-   - Polished, high-contrast SaaS aesthetic with Indigo/Violet brand accents and Obsidian slate dark mode.
-   - Clean message bubbles: Outgoing (Indigo `#4f46e5` with crisp white text) and Incoming (Neutral slate card).
-   - Real-time tick indicators: Sent (`✓`), Delivered (`✓✓`), and Read (`✓✓` in electric cyan `#38bdf8`).
-   - Vibrant unread message count badges.
-   - Micro-dot canvas wallpaper for clean chat focus.
+1. **Telegram Web Authentic Design**:
+   - Signature Telegram dark navy theme (`#0e1621` & `#17212b`) and crisp light mode.
+   - White bird in flight silhouette on Telegram blue circle favicon.
+   - Responsive multi-device layout (native slide-out sidebar, bottom sheets on mobile, desktop master-detail split).
+   - Conversation context options: **Pin to Top**, **Mute Notifications**, **Archive Chat**, **Mark as Unread**, **Clear History**, and **Delete Chat**.
+   - Fixed-position action menus with edge-collision detection and mobile bottom-sheet modals.
 
 2. **Phone Number Based Registration & Permanent Persistence**:
-   - **No mock / static test buttons** — all users create permanent accounts.
-   - Sign up with **Full Name**, **Phone Number** (e.g. `+91 99999 88888`), and **Password**.
-   - Sign in using your **Phone Number** (or username) and Password.
-   - All accounts and chat histories remain permanently stored in SQLite (`duochat.sqlite`).
+   - **No mock / static data** — all users create permanent accounts stored in SQLite.
+   - Telegram-style country code picker with instant search (+91 India, +1 USA, etc.).
+   - Sign up with **Full Name**, **Phone Number**, and **Password**.
+   - Sign in using your **Phone Number** and Password.
 
 3. **Search & Chat by Phone Number**:
-   - Click the **New Chat** button to search any registered contact by their **Phone Number** (or name).
+   - Click the **New Chat** button to search any registered contact by their **Phone Number** or name.
    - Instantly previews the contact card with Avatar, Name, Phone Number, and Bio.
    - One click initiates the 1-to-1 conversation.
 
 4. **Real-time Messaging (Socket.IO)**:
    - Instant zero-refresh message delivery.
-   - Real-time typing indicators (*"User is typing..."* with animated bouncing dots).
+   - Real-time typing indicators (*"typing..."* with animated bouncing dots).
    - Live online presence with green status badge.
    - Immediate read receipts (double ticks update live).
 
-5. **Rich Media & File Sharing**:
-   - Send photos (with fullscreen lightbox) and documents (PDF, DOCX, TXT, ZIP) up to 15MB.
-   - Multi-category emoji picker.
-   - Delete own messages for everyone (*"This message was deleted"*).
+5. **Universal Mobile & Vercel Compatibility**:
+   - Automatic backend resolution (`getApiBaseUrl()` & `getSocketUrl()`).
+   - Dynamic CORS matching any Vercel domain, local network IP, or custom host.
+   - Built-in **Server Settings Modal** on login and in the sidebar menu — test and configure your backend API directly from any mobile phone screen!
+   - Ready-to-deploy Vercel configuration (`vercel.json` and serverless API handlers).
 
 ---
 
-## ⚡ How to Run
+## ⚡ Deployment to Vercel & Mobile Setup
 
-### Start the Application
-Run both the backend server and frontend client concurrently:
+### Why Did "Network Error" Happen on Mobile?
+1. **Hardcoded Localhost**: The client Vite build was pointing to `http://localhost:5000/api`. On a mobile phone, `localhost` points to the phone itself where no server is running.
+2. **Mixed Content Security**: The browser blocks unencrypted `http://` calls from an `https://` Vercel site.
+3. **CORS Restrictions**: Standard backend origins blocked requests from `https://*.vercel.app`.
+
+### How It Is Resolved:
+- **Intelligent URL Detection**: The client now dynamically determines the correct API domain.
+- **On-Screen Server Settings**: Tap **"Server Settings"** on the login screen (or inside the menu) to enter and test any backend host with a single click.
+- **Universal CORS**: The backend automatically authorizes all Vercel and mobile origins.
+- **Serverless Compatibility**: SQLite and uploads automatically adapt to `/tmp` in serverless environments.
+
+---
+
+## 🚀 How to Run Locally
+
+### Start Both Client & Server Concurrently:
 ```bash
 npm run dev
 ```
+- **Frontend**: `http://localhost:5173`
+- **Backend API**: `http://localhost:5000`
 
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:5000
-
----
-
-## 📱 How to Chat Between Two Users
-
-1. Open **Browser Window 1** at `http://localhost:5173`:
-   - Click **"Create account"**.
-   - Enter your Name (e.g. `Krish`), Phone Number (e.g. `+91 98765 00001`), and Password.
-   - Click **Create Account**.
-2. Open **Browser Window 2** (e.g. an Incognito tab or another browser) at `http://localhost:5173`:
-   - Click **"Create account"**.
-   - Enter Name (e.g. `Alex`), Phone Number (e.g. `+91 98765 00002`), and Password.
-   - Click **Create Account**.
-3. In **Window 1**:
-   - Click the **New Chat** button in the header.
-   - Search Alex's phone number: `98765` or `+91 98765 00002`.
-   - Alex's contact card will appear. Click it to open the conversation!
-   - Send a message: see instant delivery, typing indicators, and tick receipts in real time.
+### Run Test Suite:
+```bash
+node test-deep-debug.js
+```
+(Runs 32 automated unit and integration tests across auth, phone search, chat operations, Socket.IO, and file uploads).

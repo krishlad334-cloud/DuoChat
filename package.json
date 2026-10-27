@@ -9,7 +9,11 @@
     "seed": "cd server && npm run seed",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
-    "dev": "node start-dev.js"
+    "dev": "node start-dev.js",
+    "build": "cd client && npm run build"
+  },
+  "engines": {
+    "node": ">=22.5.0"
   },
   "keywords": ["chat", "realtime", "socketio", "react", "express", "sqlite"]
 }

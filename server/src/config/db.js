@@ -3,12 +3,17 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
-// Always resolve DB path relative to server root directory if relative
-const rawDbPath = process.env.DB_PATH || './data/duochat.sqlite';
-const serverRoot = path.resolve(__dirname, '../../');
-const absoluteDbPath = path.isAbsolute(rawDbPath)
-  ? rawDbPath
-  : path.resolve(serverRoot, rawDbPath);
+// Resolve DB path (supports Vercel /tmp serverless environment)
+let absoluteDbPath;
+if (process.env.VERCEL) {
+  absoluteDbPath = '/tmp/duochat.sqlite';
+} else {
+  const rawDbPath = process.env.DB_PATH || './data/duochat.sqlite';
+  const serverRoot = path.resolve(__dirname, '../../');
+  absoluteDbPath = path.isAbsolute(rawDbPath)
+    ? rawDbPath
+    : path.resolve(serverRoot, rawDbPath);
+}
 
 // Ensure directory exists
 const dbDir = path.dirname(absoluteDbPath);
@@ -20,7 +25,11 @@ const db = new DatabaseSync(absoluteDbPath);
 
 // Enable WAL mode and foreign keys for high performance & integrity
 db.exec('PRAGMA foreign_keys = ON;');
-db.exec('PRAGMA journal_mode = WAL;');
+try {
+  db.exec('PRAGMA journal_mode = WAL;');
+} catch (e) {
+  // Fallback to default journal mode on restricted filesystems
+}
 
 // Initialize tables
 function initDb() {

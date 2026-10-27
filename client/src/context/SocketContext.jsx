@@ -4,7 +4,33 @@ import { useAuth } from './AuthContext';
 
 const SocketContext = createContext();
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+export function getSocketUrl() {
+  if (typeof window !== 'undefined') {
+    const customSocket = localStorage.getItem('duochat_socket_url');
+    if (customSocket && customSocket.trim()) return customSocket.trim().replace(/\/+$/, '');
+
+    const customApi = localStorage.getItem('duochat_api_url');
+    if (customApi && customApi.trim()) {
+      return customApi.trim().replace(/\/api\/?$/, '');
+    }
+  }
+
+  const envSocket = import.meta.env.VITE_SOCKET_URL;
+  if (envSocket && envSocket.trim()) return envSocket.trim().replace(/\/+$/, '');
+
+  const envApi = import.meta.env.VITE_API_URL;
+  if (envApi && envApi.trim()) return envApi.trim().replace(/\/api\/?$/, '');
+
+  if (typeof window !== 'undefined' && window.location) {
+    const { hostname, origin } = window.location;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
+    if (!isLocal) {
+      return origin;
+    }
+  }
+
+  return 'http://localhost:5000';
+}
 
 export function SocketProvider({ children }) {
   const { token, isAuthenticated } = useAuth();
@@ -12,7 +38,17 @@ export function SocketProvider({ children }) {
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
+  const [activeUrl, setActiveUrl] = useState(getSocketUrl());
   const socketRef = useRef(null);
+
+  // Listen to API URL change events
+  useEffect(() => {
+    const handleUrlChange = () => {
+      setActiveUrl(getSocketUrl());
+    };
+    window.addEventListener('duochat:api-url-changed', handleUrlChange);
+    return () => window.removeEventListener('duochat:api-url-changed', handleUrlChange);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
@@ -28,7 +64,7 @@ export function SocketProvider({ children }) {
 
     setConnecting(true);
 
-    const s = io(SOCKET_URL, {
+    const s = io(activeUrl, {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -47,7 +83,6 @@ export function SocketProvider({ children }) {
     s.on('disconnect', (reason) => {
       setConnected(false);
       if (reason === 'io server disconnect') {
-        // the server disconnected the socket, need to manually reconnect
         s.connect();
       }
       setConnecting(true);
@@ -56,7 +91,7 @@ export function SocketProvider({ children }) {
     s.on('connect_error', (err) => {
       setConnected(false);
       setConnecting(true);
-      setConnectionError(err.message || 'Connection error');
+      setConnectionError(err.message || 'Socket connection error');
     });
 
     s.on('reconnect', () => {
@@ -72,7 +107,7 @@ export function SocketProvider({ children }) {
       s.disconnect();
       socketRef.current = null;
     };
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, activeUrl]);
 
   const reconnect = () => {
     if (socketRef.current) {
@@ -88,6 +123,7 @@ export function SocketProvider({ children }) {
         connected,
         connecting,
         connectionError,
+        socketUrl: activeUrl,
         reconnect,
       }}
     >
