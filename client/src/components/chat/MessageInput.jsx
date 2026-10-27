@@ -104,10 +104,10 @@ export default function MessageInput() {
   };
 
   return (
-    <div className="relative px-4 py-2.5 bg-[#f0f2f5] dark:bg-[#202c33] border-t border-[#e9edef] dark:border-[#222d34]">
+    <div className="relative px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800">
       {/* File preview pill before sending */}
       {file && (
-        <div className="mb-2 p-2 bg-white dark:bg-[#111b21] rounded-xl border border-[#e9edef] dark:border-[#222d34] flex items-center justify-between max-w-sm animate-in fade-in duration-150">
+        <div className="mb-2 p-2 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between max-w-sm animate-in fade-in duration-150">
           <div className="flex items-center gap-2.5 min-w-0">
             {filePreview ? (
               <img
@@ -116,15 +116,15 @@ export default function MessageInput() {
                 className="w-10 h-10 object-cover rounded-lg"
               />
             ) : (
-              <div className="p-2 bg-[#00a884]/15 text-[#00a884] rounded-lg">
+              <div className="p-2 bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 rounded-lg">
                 <FileText className="w-5 h-5" />
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-[#111b21] dark:text-[#e9edef] truncate">
+              <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                 {file.name}
               </p>
-              <p className="text-[10px] text-[#8696a0]">
+              <p className="text-[10px] text-slate-400">
                 {formatFileSize(file.size)}
               </p>
             </div>
@@ -133,7 +133,7 @@ export default function MessageInput() {
           <button
             type="button"
             onClick={removeFile}
-            className="p-1 text-[#8696a0] hover:text-[#111b21] dark:hover:text-[#e9edef] rounded-lg"
+            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
           >
             <X className="w-4 h-4" />
           </button>
@@ -147,21 +147,7 @@ export default function MessageInput() {
         onSelectEmoji={handleSelectEmoji}
       />
 
-      <div className="flex items-end gap-2 text-[#54656f] dark:text-[#aebac1]">
-        {/* Emoji toggle button */}
-        <button
-          type="button"
-          onClick={() => setIsEmojiOpen(!isEmojiOpen)}
-          className={`p-2.5 rounded-full transition ${
-            isEmojiOpen
-              ? 'text-[#00a884] bg-black/5 dark:bg-white/5'
-              : 'hover:bg-black/5 dark:hover:bg-white/5'
-          }`}
-          title="Emojis"
-        >
-          <Smile className="w-6 h-6" />
-        </button>
-
+      <div className="flex items-end gap-2 text-slate-500 dark:text-slate-400">
         {/* Attachment button */}
         <input
           ref={fileInputRef}
@@ -173,13 +159,27 @@ export default function MessageInput() {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition"
+          className="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition"
           title="Attach file or photo"
         >
-          <Paperclip className="w-6 h-6 rotate-45" />
+          <Paperclip className="w-5 h-5" />
         </button>
 
-        {/* WhatsApp Pill Input Field */}
+        {/* Emoji toggle button */}
+        <button
+          type="button"
+          onClick={() => setIsEmojiOpen(!isEmojiOpen)}
+          className={`p-2.5 rounded-xl transition ${
+            isEmojiOpen
+              ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50'
+              : 'hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+          }`}
+          title="Insert emoji"
+        >
+          <Smile className="w-5 h-5" />
+        </button>
+
+        {/* Modern Textarea */}
         <div className="flex-1 min-w-0">
           <textarea
             ref={textareaRef}
@@ -187,8 +187,8 @@ export default function MessageInput() {
             value={text}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message"
-            className="w-full max-h-32 px-4 py-2 bg-white dark:bg-[#2a3942] border-0 rounded-lg text-sm focus:outline-none focus:ring-0 text-[#111b21] dark:text-[#e9edef] placeholder-[#8696a0] resize-none leading-relaxed transition shadow-xs"
+            placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+            className="w-full max-h-32 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-0 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 text-slate-900 dark:text-slate-100 placeholder-slate-400 resize-none leading-relaxed transition"
           />
         </div>
 
@@ -197,8 +197,8 @@ export default function MessageInput() {
           type="button"
           disabled={(!text.trim() && !file) || sending}
           onClick={handleSend}
-          className="p-2.5 bg-[#00a884] hover:bg-[#008069] active:scale-95 disabled:opacity-40 text-white rounded-full shadow-md flex items-center justify-center transition flex-shrink-0"
-          title="Send"
+          className="p-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-40 text-white rounded-xl shadow-md shadow-indigo-500/25 flex items-center justify-center transition flex-shrink-0"
+          title="Send message"
         >
           {sending ? (
             <Loader2 className="w-5 h-5 animate-spin" />

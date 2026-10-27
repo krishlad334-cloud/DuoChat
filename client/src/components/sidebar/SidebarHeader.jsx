@@ -8,7 +8,7 @@ export default function SidebarHeader({ onOpenSearchUser, onOpenNewGroup }) {
   const { user, logout } = useAuth();
 
   return (
-    <div className="h-16 px-4 bg-[#f0f2f5] dark:bg-[#202c33] border-b border-[#e9edef] dark:border-[#222d34] flex items-center justify-between z-10">
+    <div className="h-16 px-4 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between z-10">
       {/* Current User Info */}
       <div className="flex items-center gap-3 min-w-0">
         <Avatar
@@ -19,16 +19,16 @@ export default function SidebarHeader({ onOpenSearchUser, onOpenNewGroup }) {
           isOnline={true}
         />
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-[#111b21] dark:text-[#e9edef] truncate">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
             {user?.name}
           </h2>
           {user?.phone ? (
-            <p className="text-[11px] text-[#00a884] dark:text-[#25d366] font-medium truncate flex items-center gap-1">
+            <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium truncate flex items-center gap-1">
               <Phone className="w-2.5 h-2.5 inline" />
               <span>{user.phone}</span>
             </p>
           ) : (
-            <p className="text-[11px] text-[#667781] dark:text-[#8696a0] truncate">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
               @{user?.username}
             </p>
           )}
@@ -36,10 +36,10 @@ export default function SidebarHeader({ onOpenSearchUser, onOpenNewGroup }) {
       </div>
 
       {/* Action Icons */}
-      <div className="flex items-center gap-1 text-[#54656f] dark:text-[#aebac1]">
+      <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
         <button
           onClick={onOpenNewGroup}
-          className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition"
+          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 rounded-xl transition"
           title="New Group"
         >
           <Users className="w-5 h-5" />
@@ -47,7 +47,7 @@ export default function SidebarHeader({ onOpenSearchUser, onOpenNewGroup }) {
 
         <button
           onClick={onOpenSearchUser}
-          className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition text-[#00a884] dark:text-[#25d366]"
+          className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-xl transition"
           title="Search phone number to start new chat"
         >
           <MessageSquarePlus className="w-5 h-5" />
@@ -57,7 +57,7 @@ export default function SidebarHeader({ onOpenSearchUser, onOpenNewGroup }) {
 
         <button
           onClick={logout}
-          className="p-2 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 rounded-full transition"
+          className="p-2 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 rounded-xl transition"
           title="Log Out"
         >
           <LogOut className="w-5 h-5" />

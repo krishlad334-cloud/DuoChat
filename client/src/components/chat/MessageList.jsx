@@ -99,11 +99,11 @@ export default function MessageList() {
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="relative flex-1 overflow-y-auto px-4 sm:px-12 py-3 space-y-1 wa-chat-bg-light dark:wa-chat-bg-dark"
+      className="relative flex-1 overflow-y-auto px-4 sm:px-10 py-3 space-y-1 duo-chat-bg-light dark:duo-chat-bg-dark"
     >
       {/* Loading older messages spinner */}
       {loadingOlder && (
-        <div className="py-2 flex items-center justify-center gap-2 text-xs text-[#00a884] font-medium">
+        <div className="py-2 flex items-center justify-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span>Loading older messages...</span>
         </div>
@@ -111,9 +111,9 @@ export default function MessageList() {
 
       {/* Empty State */}
       {!loadingMessages && messages.length === 0 && (
-        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 text-[#8696a0]">
-          <div className="px-4 py-2 bg-white/80 dark:bg-[#182229]/80 backdrop-blur-xs rounded-lg shadow-xs text-xs text-[#54656f] dark:text-[#aebac1] max-w-sm">
-            🔒 Messages are end-to-end synchronized in real-time. Say hello to start the chat!
+        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 text-slate-400">
+          <div className="px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl shadow-xs border border-slate-200/50 dark:border-slate-700/50 text-xs text-slate-600 dark:text-slate-300 max-w-sm">
+            🔒 Messages are real-time and end-to-end synchronized. Say hello to start chatting!
           </div>
         </div>
       )}
@@ -131,7 +131,7 @@ export default function MessageList() {
           <React.Fragment key={message.id || idx}>
             {showDateSeparator && (
               <div className="flex items-center justify-center my-3">
-                <span className="px-3 py-1 bg-white/90 dark:bg-[#182229]/90 text-[11px] font-semibold tracking-wider text-[#54656f] dark:text-[#8696a0] rounded-md shadow-xs uppercase">
+                <span className="px-3 py-1 bg-white/90 dark:bg-slate-800/90 text-[11px] font-semibold text-slate-600 dark:text-slate-300 rounded-full shadow-xs border border-slate-200/50 dark:border-slate-700/50">
                   {currentDateSeparator}
                 </span>
               </div>
@@ -148,13 +148,13 @@ export default function MessageList() {
         );
       })}
 
-      {/* WhatsApp Typing Indicator Bubble */}
+      {/* Typing Indicator Bubble */}
       {typingUserNames.length > 0 && (
-        <div className="flex items-center gap-2 text-xs text-[#54656f] dark:text-[#aebac1] px-3 py-1.5 bg-white dark:bg-[#202c33] rounded-lg w-fit shadow-xs animate-in fade-in">
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 px-3 py-1.5 bg-white/90 dark:bg-slate-800/90 rounded-2xl w-fit shadow-xs border border-slate-200/60 dark:border-slate-700/60 animate-in fade-in">
           <div className="flex gap-1 items-center px-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00a884] animate-bounce-dot-1" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00a884] animate-bounce-dot-2" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00a884] animate-bounce-dot-3" />
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-1" />
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-2" />
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-3" />
           </div>
           <span>
             {typingUserNames.join(', ')} typing...
@@ -169,7 +169,7 @@ export default function MessageList() {
       {showScrollBottom && (
         <button
           onClick={scrollToBottom}
-          className="fixed bottom-20 right-6 sm:right-10 p-2.5 bg-white dark:bg-[#202c33] text-[#54656f] dark:text-[#aebac1] rounded-full shadow-lg border border-[#e9edef] dark:border-[#222d34] hover:bg-[#f0f2f5] dark:hover:bg-[#2a3942] transition active:scale-95 z-30"
+          className="fixed bottom-20 right-6 sm:right-10 p-2.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-200 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition active:scale-95 z-30"
           title="Scroll to bottom"
         >
           <ChevronDown className="w-5 h-5" />

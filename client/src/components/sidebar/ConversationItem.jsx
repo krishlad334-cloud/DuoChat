@@ -36,7 +36,7 @@ export default function ConversationItem({ conversation }) {
   const renderLastMessage = () => {
     if (isTyping) {
       return (
-        <span className="text-[#00a884] dark:text-[#25d366] font-medium animate-pulse">
+        <span className="text-indigo-600 dark:text-indigo-400 font-medium animate-pulse">
           typing...
         </span>
       );
@@ -45,18 +45,18 @@ export default function ConversationItem({ conversation }) {
     if (!lastMsg) {
       if (!isGroup && otherUser?.phone) {
         return (
-          <span className="text-xs text-[#00a884] dark:text-[#25d366] flex items-center gap-1 font-medium">
+          <span className="text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-1 font-medium">
             <Phone className="w-3 h-3" />
             <span>{otherUser.phone}</span>
           </span>
         );
       }
-      return <span className="italic text-[#8696a0]">No messages yet</span>;
+      return <span className="italic text-slate-400">No messages yet</span>;
     }
 
     if (lastMsg.is_deleted) {
       return (
-        <span className="italic text-[#8696a0] flex items-center gap-1">
+        <span className="italic text-slate-400 flex items-center gap-1">
           <Ban className="w-3 h-3" />
           <span>This message was deleted</span>
         </span>
@@ -68,17 +68,17 @@ export default function ConversationItem({ conversation }) {
         {isLastMsgOwn && (
           <span className="flex-shrink-0">
             {lastMsg.status === 'read' ? (
-              <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb] stroke-[2.5]" />
+              <CheckCheck className="w-3.5 h-3.5 text-cyan-500 stroke-[2.5]" />
             ) : lastMsg.status === 'delivered' ? (
-              <CheckCheck className="w-3.5 h-3.5 text-[#8696a0] stroke-[2]" />
+              <CheckCheck className="w-3.5 h-3.5 text-slate-400 stroke-[2]" />
             ) : (
-              <Check className="w-3.5 h-3.5 text-[#8696a0] stroke-[2]" />
+              <Check className="w-3.5 h-3.5 text-slate-400 stroke-[2]" />
             )}
           </span>
         )}
 
         {isGroup && !isLastMsgOwn && (
-          <span className="font-medium text-[#111b21] dark:text-[#e9edef]">
+          <span className="font-semibold text-slate-700 dark:text-slate-300">
             {lastMsg.sender_name?.split(' ')[0]}:{' '}
           </span>
         )}
@@ -110,16 +110,16 @@ export default function ConversationItem({ conversation }) {
     <button
       type="button"
       onClick={() => selectConversation(conversation)}
-      className={`w-full px-3.5 py-3 flex items-center gap-3.5 text-left transition-colors relative border-b border-[#e9edef]/80 dark:border-[#222d34]/80 ${
+      className={`w-full px-3.5 py-3 flex items-center gap-3.5 text-left transition-colors relative border-b border-slate-100 dark:border-slate-800/60 ${
         isSelected
-          ? 'bg-[#f0f2f5] dark:bg-[#2a3942]'
-          : 'hover:bg-[#f5f6f6] dark:hover:bg-[#202c33]/70 bg-white dark:bg-[#111b21]'
+          ? 'bg-indigo-50/80 dark:bg-indigo-950/40 text-slate-900 dark:text-white before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:bg-indigo-600 before:rounded-r-full'
+          : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200'
       }`}
     >
       {/* Avatar */}
       <div className="flex-shrink-0">
         {isGroup ? (
-          <div className="w-12 h-12 rounded-full bg-[#dfe5e7] dark:bg-[#202c33] text-[#54656f] dark:text-[#aebac1] flex items-center justify-center font-bold">
+          <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
             <Users className="w-6 h-6" />
           </div>
         ) : (
@@ -136,26 +136,26 @@ export default function ConversationItem({ conversation }) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-0.5">
-          <h3 className="text-sm font-semibold truncate text-[#111b21] dark:text-[#e9edef]">
+          <h3 className="text-sm font-semibold truncate text-slate-900 dark:text-white">
             {title}
           </h3>
           <span
             className={`text-[11px] whitespace-nowrap ml-2 ${
               unreadCount > 0
-                ? 'text-[#25d366] font-semibold'
-                : 'text-[#667781] dark:text-[#8696a0]'
+                ? 'text-indigo-600 dark:text-indigo-400 font-semibold'
+                : 'text-slate-400 dark:text-slate-500'
             }`}
           >
             {timeStr}
           </span>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-[#667781] dark:text-[#8696a0]">
+        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
           <div className="truncate pr-2">{renderLastMessage()}</div>
 
-          {/* WhatsApp Vibrant Green Unread Badge */}
+          {/* Unread Badge */}
           {unreadCount > 0 && (
-            <span className="flex-shrink-0 min-w-5 h-5 px-1.5 bg-[#25d366] text-white rounded-full text-[11px] font-bold flex items-center justify-center shadow-xs">
+            <span className="flex-shrink-0 min-w-5 h-5 px-1.5 bg-indigo-600 text-white rounded-full text-[11px] font-bold flex items-center justify-center shadow-xs">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import Avatar from '../common/Avatar';
 import GroupInfoModal from './GroupInfoModal';
 import { formatLastSeen } from '../../utils/dateUtils';
-import { ArrowLeft, Users, Info, Phone, Search } from 'lucide-react';
+import { ArrowLeft, Users, Info, Phone } from 'lucide-react';
 
 export default function ChatHeader() {
   const { user } = useAuth();
@@ -52,12 +52,12 @@ export default function ChatHeader() {
 
   return (
     <>
-      <div className="h-16 px-4 bg-[#f0f2f5] dark:bg-[#202c33] border-b border-[#e9edef] dark:border-[#222d34] flex items-center justify-between z-20">
+      <div className="h-16 px-4 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between z-20">
         <div className="flex items-center gap-3 min-w-0">
           {/* Mobile Back Button */}
           <button
             onClick={closeMobileChat}
-            className="md:hidden p-1.5 -ml-1 text-[#54656f] dark:text-[#aebac1] hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition"
+            className="md:hidden p-1.5 -ml-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
             title="Back to chats"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -69,7 +69,7 @@ export default function ChatHeader() {
             className={isGroup ? 'cursor-pointer' : ''}
           >
             {isGroup ? (
-              <div className="w-10 h-10 rounded-full bg-[#dfe5e7] dark:bg-[#111b21] text-[#54656f] dark:text-[#aebac1] flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
                 <Users className="w-5 h-5" />
               </div>
             ) : (
@@ -89,11 +89,11 @@ export default function ChatHeader() {
             className={`min-w-0 ${isGroup ? 'cursor-pointer' : ''}`}
           >
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-[#111b21] dark:text-[#e9edef] truncate">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                 {title}
               </h2>
               {!isGroup && otherUser?.phone && (
-                <span className="text-[11px] text-[#00a884] dark:text-[#25d366] font-medium hidden sm:inline">
+                <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium hidden sm:inline">
                   • {otherUser.phone}
                 </span>
               )}
@@ -102,10 +102,10 @@ export default function ChatHeader() {
             <p
               className={`text-xs truncate transition-colors ${
                 typingList.length > 0
-                  ? 'text-[#00a884] dark:text-[#25d366] font-medium'
+                  ? 'text-indigo-600 dark:text-indigo-400 font-medium'
                   : isOnline
-                  ? 'text-[#00a884] dark:text-[#25d366] font-medium'
-                  : 'text-[#667781] dark:text-[#8696a0]'
+                  ? 'text-emerald-500 font-medium'
+                  : 'text-slate-500 dark:text-slate-400'
               }`}
             >
               {statusText}
@@ -114,11 +114,11 @@ export default function ChatHeader() {
         </div>
 
         {/* Header Right Action Icons */}
-        <div className="flex items-center gap-1 text-[#54656f] dark:text-[#aebac1]">
+        <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
           {isGroup && (
             <button
               onClick={() => setIsGroupInfoOpen(true)}
-              className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
               title="Group info & members"
             >
               <Info className="w-5 h-5" />
