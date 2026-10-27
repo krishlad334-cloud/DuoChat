@@ -19,8 +19,8 @@ import {
   Volume2,
   VolumeX,
   Mail,
-  MailCheck,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-react';
 
 export default function ConversationItem({ conversation }) {
@@ -38,24 +38,13 @@ export default function ConversationItem({ conversation }) {
   } = useChat();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const menuRef = useRef(null);
 
   const isSelected = activeConversation?.id === conversation.id;
   const isGroup = Boolean(conversation.is_group);
   const otherUser = conversation.other_user;
-
-  // Close context menu on outside click
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setIsMenuOpen(false);
-      }
-    }
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMenuOpen]);
 
   // Online status
   let isOnline = false;
@@ -153,14 +142,60 @@ export default function ConversationItem({ conversation }) {
   const isMuted = Boolean(conversation.is_muted);
   const isArchived = Boolean(conversation.is_archived);
 
+  // Trigger dropdown / action sheet with responsive boundary detection
+  const handleOpenMenu = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (window.innerWidth < 768) {
+      setIsMobileSheetOpen(true);
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const menuHeight = 220;
+    const menuWidth = 195;
+
+    let top = rect.bottom + 4;
+    if (top + menuHeight > window.innerHeight) {
+      top = Math.max(10, rect.top - menuHeight - 4);
+    }
+
+    let left = rect.right - menuWidth;
+    if (left < 10) left = 10;
+
+    setMenuPos({ top, left });
+    setIsMenuOpen(true);
+  };
+
   const handleContextMenu = (e) => {
     e.preventDefault();
+    if (window.innerWidth < 768) {
+      setIsMobileSheetOpen(true);
+      return;
+    }
+
+    const menuHeight = 220;
+    const menuWidth = 195;
+
+    let top = e.clientY + 4;
+    if (top + menuHeight > window.innerHeight) {
+      top = Math.max(10, e.clientY - menuHeight - 4);
+    }
+
+    let left = e.clientX;
+    if (left + menuWidth > window.innerWidth) {
+      left = window.innerWidth - menuWidth - 10;
+    }
+
+    setMenuPos({ top, left });
     setIsMenuOpen(true);
   };
 
   const handleDelete = (e) => {
     e.stopPropagation();
     setIsMenuOpen(false);
+    setIsMobileSheetOpen(false);
     if (confirm(`Delete chat with "${title}"? All messages will be permanently deleted.`)) {
       deleteChat(conversation.id);
     }
@@ -169,130 +204,147 @@ export default function ConversationItem({ conversation }) {
   const handleToggleArchive = (e) => {
     e.stopPropagation();
     setIsMenuOpen(false);
+    setIsMobileSheetOpen(false);
     archiveChat(conversation.id, !isArchived);
   };
 
   const handleToggleMute = (e) => {
     e.stopPropagation();
     setIsMenuOpen(false);
+    setIsMobileSheetOpen(false);
     muteChat(conversation.id, !isMuted);
   };
 
   const handleTogglePin = (e) => {
     e.stopPropagation();
     setIsMenuOpen(false);
+    setIsMobileSheetOpen(false);
     pinChat(conversation.id, !isPinned);
   };
 
   const handleToggleUnread = (e) => {
     e.stopPropagation();
     setIsMenuOpen(false);
+    setIsMobileSheetOpen(false);
     markChatUnread(conversation.id);
   };
 
   return (
-    <div
-      onContextMenu={handleContextMenu}
-      className={`w-full group/item relative ${
-        isSelected
-          ? 'bg-[#3390ec] dark:bg-[#2b5278] text-white'
-          : 'hover:bg-zinc-100 dark:hover:bg-[#202b36] bg-white dark:bg-[#17212b] text-zinc-800 dark:text-zinc-200'
-      }`}
-    >
-      <button
-        type="button"
-        onClick={() => selectConversation(conversation)}
-        className="w-full px-3.5 py-3 flex items-center gap-3.5 text-left transition-colors relative"
+    <>
+      <div
+        onContextMenu={handleContextMenu}
+        className={`w-full group/item relative ${
+          isSelected
+            ? 'bg-[#3390ec] dark:bg-[#2b5278] text-white'
+            : 'hover:bg-zinc-100 dark:hover:bg-[#202b36] bg-white dark:bg-[#17212b] text-zinc-800 dark:text-zinc-200'
+        }`}
       >
-        {/* Telegram Avatar */}
-        <div className="flex-shrink-0">
-          {isGroup ? (
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${
-              isSelected
-                ? 'bg-white/20 text-white'
-                : 'bg-gradient-to-tr from-[#3390ec] to-[#5288c1] text-white shadow-xs'
-            }`}>
-              <Users className="w-6 h-6" />
-            </div>
-          ) : (
-            <Avatar
-              src={avatarSrc}
-              name={title}
-              size="lg"
-              showStatus={true}
-              isOnline={isOnline}
-            />
-          )}
-        </div>
-
-        {/* Info Container */}
-        <div className="flex-1 min-w-0 pr-6">
-          <div className="flex items-center justify-between mb-0.5">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <h3 className={`text-sm font-semibold truncate ${isSelected ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
-                {title}
-              </h3>
-              {isPinned && (
-                <Pin className="w-3.5 h-3.5 rotate-45 flex-shrink-0 text-[#3390ec] dark:text-[#5288c1]" />
-              )}
-              {isMuted && (
-                <VolumeX className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
-              )}
-            </div>
-
-            <span
-              className={`text-[11px] whitespace-nowrap ml-2 ${
-                isSelected
-                  ? 'text-white/80'
-                  : unreadCount > 0
-                  ? 'text-[#3390ec] dark:text-[#5288c1] font-bold'
-                  : 'text-zinc-400 dark:text-zinc-500'
-              }`}
-            >
-              {timeStr}
-            </span>
-          </div>
-
-          <div className={`flex items-center justify-between text-xs ${isSelected ? 'text-white/90' : 'text-zinc-500 dark:text-zinc-400'}`}>
-            <div className="truncate pr-2">{renderLastMessage()}</div>
-
-            {/* Telegram Pill Badge */}
-            {unreadCount > 0 && (
-              <span className={`flex-shrink-0 min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center ${
-                isSelected
-                  ? 'bg-white text-[#3390ec]'
-                  : 'bg-[#3390ec] dark:bg-[#5288c1] text-white'
-              }`}>
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </div>
-        </div>
-      </button>
-
-      {/* Quick Action Three-Dots Trigger Button */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2">
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsMenuOpen(!isMenuOpen);
-          }}
-          className={`p-1.5 rounded-full transition ${
-            isSelected
-              ? 'text-white hover:bg-white/20'
-              : 'text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-[#242f3d]'
-          } ${isMenuOpen ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
-          title="Chat Options"
+          onClick={() => selectConversation(conversation)}
+          className="w-full px-3.5 py-3 flex items-center gap-3.5 text-left transition-colors relative"
         >
-          <MoreVertical className="w-4 h-4" />
+          {/* Telegram Avatar */}
+          <div className="flex-shrink-0">
+            {isGroup ? (
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${
+                isSelected
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gradient-to-tr from-[#3390ec] to-[#5288c1] text-white shadow-xs'
+              }`}>
+                <Users className="w-6 h-6" />
+              </div>
+            ) : (
+              <Avatar
+                src={avatarSrc}
+                name={title}
+                size="lg"
+                showStatus={true}
+                isOnline={isOnline}
+              />
+            )}
+          </div>
+
+          {/* Info Container */}
+          <div className="flex-1 min-w-0 pr-7">
+            <div className="flex items-center justify-between mb-0.5">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <h3 className={`text-sm font-semibold truncate ${isSelected ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
+                  {title}
+                </h3>
+                {isPinned && (
+                  <Pin className="w-3.5 h-3.5 rotate-45 flex-shrink-0 text-[#3390ec] dark:text-[#5288c1]" />
+                )}
+                {isMuted && (
+                  <VolumeX className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
+                )}
+              </div>
+
+              <span
+                className={`text-[11px] whitespace-nowrap ml-2 ${
+                  isSelected
+                    ? 'text-white/80'
+                    : unreadCount > 0
+                    ? 'text-[#3390ec] dark:text-[#5288c1] font-bold'
+                    : 'text-zinc-400 dark:text-zinc-500'
+                }`}
+              >
+                {timeStr}
+              </span>
+            </div>
+
+            <div className={`flex items-center justify-between text-xs ${isSelected ? 'text-white/90' : 'text-zinc-500 dark:text-zinc-400'}`}>
+              <div className="truncate pr-2">{renderLastMessage()}</div>
+
+              {/* Telegram Pill Badge */}
+              {unreadCount > 0 && (
+                <span className={`flex-shrink-0 min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center ${
+                  isSelected
+                    ? 'bg-white text-[#3390ec]'
+                    : 'bg-[#3390ec] dark:bg-[#5288c1] text-white'
+                }`}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </div>
+          </div>
         </button>
 
-        {/* Telegram Context Menu Popover */}
-        {isMenuOpen && (
+        {/* Quick Action Three-Dots Trigger Button */}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10">
+          <button
+            type="button"
+            onClick={handleOpenMenu}
+            className={`p-1.5 rounded-full transition ${
+              isSelected
+                ? 'text-white hover:bg-white/20'
+                : 'text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-[#242f3d]'
+            } ${isMenuOpen || isMobileSheetOpen ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100 md:group-hover/item:opacity-100'}`}
+            title="Chat Options"
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop Viewport-Fixed Popover (Never clipped by overflow-y-auto) */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 pointer-events-auto"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMenuOpen(false);
+          }}
+        >
           <div
             ref={menuRef}
-            className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-[#17212b] border border-zinc-200 dark:border-[#242f3d] rounded-2xl shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs font-medium"
+            style={{
+              top: `${menuPos.top}px`,
+              left: `${menuPos.left}px`,
+              position: 'fixed'
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-48 bg-white dark:bg-[#17212b] border border-zinc-200 dark:border-[#242f3d] rounded-2xl shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs font-medium"
           >
             {/* Pin / Unpin */}
             <button
@@ -373,8 +425,103 @@ export default function ConversationItem({ conversation }) {
               <span>Delete Chat</span>
             </button>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+
+      {/* Mobile Native Bottom Action Sheet (100% Responsive, Never Cut Off) */}
+      {isMobileSheetOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center animate-in fade-in duration-150">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMobileSheetOpen(false);
+            }}
+          />
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-lg bg-white dark:bg-[#17212b] rounded-t-3xl shadow-2xl border-t border-zinc-200 dark:border-[#242f3d] p-4 pb-6 z-50 animate-in slide-in-from-bottom duration-200"
+          >
+            {/* Handle Drag Bar */}
+            <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-700 rounded-full mx-auto mb-3" />
+
+            {/* Header info */}
+            <div className="flex items-center gap-3 px-1 pb-3 mb-2 border-b border-zinc-100 dark:border-[#242f3d]">
+              <Avatar src={avatarSrc} name={title} size="md" />
+              <div className="min-w-0 flex-1">
+                <h4 className="font-bold text-sm text-zinc-900 dark:text-white truncate">{title}</h4>
+                <p className="text-xs text-zinc-400 truncate">{timeStr}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileSheetOpen(false)}
+                className="p-1 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Actions list */}
+            <div className="space-y-1 text-sm font-medium">
+              <button
+                type="button"
+                onClick={handleTogglePin}
+                className="w-full px-3 py-3 rounded-xl flex items-center gap-3 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#242f3d] transition text-left"
+              >
+                {isPinned ? <PinOff className="w-5 h-5 text-zinc-400" /> : <Pin className="w-5 h-5 text-[#3390ec]" />}
+                <span>{isPinned ? 'Unpin from Top' : 'Pin to Top'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleToggleArchive}
+                className="w-full px-3 py-3 rounded-xl flex items-center gap-3 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#242f3d] transition text-left"
+              >
+                {isArchived ? <ArchiveRestore className="w-5 h-5 text-emerald-500" /> : <Archive className="w-5 h-5 text-zinc-400" />}
+                <span>{isArchived ? 'Unarchive Chat' : 'Archive Chat'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleToggleMute}
+                className="w-full px-3 py-3 rounded-xl flex items-center gap-3 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#242f3d] transition text-left"
+              >
+                {isMuted ? <Volume2 className="w-5 h-5 text-emerald-500" /> : <VolumeX className="w-5 h-5 text-zinc-400" />}
+                <span>{isMuted ? 'Unmute Notifications' : 'Mute Notifications'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleToggleUnread}
+                className="w-full px-3 py-3 rounded-xl flex items-center gap-3 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#242f3d] transition text-left"
+              >
+                <Mail className="w-5 h-5 text-zinc-400" />
+                <span>Mark as Unread</span>
+              </button>
+
+              <div className="my-1 border-t border-zinc-200 dark:border-[#242f3d]" />
+
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="w-full px-3 py-3 rounded-xl flex items-center gap-3 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-left"
+              >
+                <Trash2 className="w-5 h-5" />
+                <span>Delete Chat</span>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsMobileSheetOpen(false)}
+              className="w-full mt-3 py-3 rounded-2xl bg-zinc-100 dark:bg-[#242f3d] text-zinc-700 dark:text-zinc-200 font-semibold text-xs transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
