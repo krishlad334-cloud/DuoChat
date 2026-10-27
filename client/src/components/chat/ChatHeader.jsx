@@ -52,12 +52,12 @@ export default function ChatHeader() {
 
   return (
     <>
-      <div className="h-16 px-4 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between z-20">
+      <div className="h-16 px-4 bg-white dark:bg-[#121215] border-b border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between z-20">
         <div className="flex items-center gap-3 min-w-0">
           {/* Mobile Back Button */}
           <button
             onClick={closeMobileChat}
-            className="md:hidden p-1.5 -ml-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+            className="md:hidden p-1.5 -ml-1 text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition"
             title="Back to chats"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -69,7 +69,7 @@ export default function ChatHeader() {
             className={isGroup ? 'cursor-pointer' : ''}
           >
             {isGroup ? (
-              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600/10 to-indigo-600/10 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold border border-violet-500/20">
                 <Users className="w-5 h-5" />
               </div>
             ) : (
@@ -89,11 +89,11 @@ export default function ChatHeader() {
             className={`min-w-0 ${isGroup ? 'cursor-pointer' : ''}`}
           >
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
                 {title}
               </h2>
               {!isGroup && otherUser?.phone && (
-                <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium hidden sm:inline">
+                <span className="text-[11px] text-violet-600 dark:text-violet-400 font-medium hidden sm:inline">
                   • {otherUser.phone}
                 </span>
               )}
@@ -102,10 +102,10 @@ export default function ChatHeader() {
             <p
               className={`text-xs truncate transition-colors ${
                 typingList.length > 0
-                  ? 'text-indigo-600 dark:text-indigo-400 font-medium'
+                  ? 'text-violet-600 dark:text-violet-400 font-medium'
                   : isOnline
                   ? 'text-emerald-500 font-medium'
-                  : 'text-slate-500 dark:text-slate-400'
+                  : 'text-zinc-500 dark:text-zinc-400'
               }`}
             >
               {statusText}
@@ -114,11 +114,11 @@ export default function ChatHeader() {
         </div>
 
         {/* Header Right Action Icons */}
-        <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
           {isGroup && (
             <button
               onClick={() => setIsGroupInfoOpen(true)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
               title="Group info & members"
             >
               <Info className="w-5 h-5" />

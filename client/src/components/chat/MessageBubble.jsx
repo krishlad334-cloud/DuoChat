@@ -18,21 +18,21 @@ export default function MessageBubble({
 
     if (message.status === 'read') {
       return (
-        <span title="Read" className="text-cyan-300 dark:text-cyan-400">
+        <span title="Read" className="text-sky-300">
           <CheckCheck className="w-3.5 h-3.5 stroke-[2.5]" />
         </span>
       );
     }
     if (message.status === 'delivered') {
       return (
-        <span title="Delivered" className="text-slate-300 dark:text-slate-400">
+        <span title="Delivered" className="text-white/70">
           <CheckCheck className="w-3.5 h-3.5 stroke-[2]" />
         </span>
       );
     }
     // Sent / Pending
     return (
-      <span title="Sent" className="text-slate-300 dark:text-slate-400">
+      <span title="Sent" className="text-white/70">
         <Check className="w-3.5 h-3.5 stroke-[2]" />
       </span>
     );
@@ -50,15 +50,15 @@ export default function MessageBubble({
       }`}
     >
       <div
-        className={`relative max-w-[85%] sm:max-w-[70%] rounded-2xl px-3.5 py-2.5 shadow-sm transition-all ${
+        className={`relative max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-2.5 shadow-sm transition-all ${
           isOwn
-            ? 'bg-indigo-600 text-white rounded-tr-xs'
-            : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/60 rounded-tl-xs'
+            ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-tr-xs shadow-violet-500/15'
+            : 'bg-white dark:bg-[#18181b] text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-800 rounded-tl-xs'
         }`}
       >
         {/* Sender name for group chat */}
         {isGroup && !isOwn && (
-          <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">
+          <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 mb-1">
             {message.sender_name}
           </div>
         )}
@@ -90,14 +90,14 @@ export default function MessageBubble({
                 className={`flex items-center gap-3 p-2.5 mb-2 rounded-xl border ${
                   isOwn
                     ? 'bg-white/10 border-white/20 text-white'
-                    : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700'
+                    : 'bg-zinc-50 dark:bg-[#121215] border-zinc-200 dark:border-zinc-800'
                 }`}
               >
                 <div
                   className={`p-2 rounded-lg ${
                     isOwn
                       ? 'bg-white/20 text-white'
-                      : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400'
+                      : 'bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400'
                   }`}
                 >
                   <FileText className="w-5 h-5" />
@@ -108,7 +108,7 @@ export default function MessageBubble({
                   </div>
                   <div
                     className={`text-[10px] ${
-                      isOwn ? 'text-indigo-200' : 'text-slate-400'
+                      isOwn ? 'text-violet-200' : 'text-zinc-400'
                     }`}
                   >
                     {formatFileSize(message.file_size)}
@@ -122,7 +122,7 @@ export default function MessageBubble({
                   className={`p-1.5 rounded-lg transition ${
                     isOwn
                       ? 'hover:bg-white/20 text-white'
-                      : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500'
+                      : 'hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500'
                   }`}
                   title="Download file"
                 >
@@ -143,7 +143,7 @@ export default function MessageBubble({
         {/* Footer info: Timestamp + Ticks */}
         <div
           className={`flex items-center justify-end gap-1 mt-1 text-[10px] select-none ${
-            isOwn ? 'text-indigo-100/80' : 'text-slate-400 dark:text-slate-500'
+            isOwn ? 'text-white/80' : 'text-zinc-400 dark:text-zinc-500'
           }`}
         >
           <span>{timeStr}</span>
@@ -155,7 +155,7 @@ export default function MessageBubble({
       {isOwn && !isDeleted && showActions && (
         <button
           onClick={() => onDelete && onDelete(message.id)}
-          className="absolute -top-2 right-1 p-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-500 rounded-full shadow-md transition"
+          className="absolute -top-2 right-1 p-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-400 hover:text-rose-500 rounded-full shadow-md transition"
           title="Delete message"
         >
           <Trash2 className="w-3.5 h-3.5" />
