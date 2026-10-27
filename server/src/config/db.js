@@ -90,9 +90,21 @@ function initDb() {
     db.exec('ALTER TABLE users ADD COLUMN phone TEXT;');
   }
   if (!userColumns.includes('about')) {
-    db.exec("ALTER TABLE users ADD COLUMN about TEXT DEFAULT 'Hey there! I am using WhatsApp.';");
+    db.exec("ALTER TABLE users ADD COLUMN about TEXT DEFAULT 'Hey there! I am using Duo Chat.';");
   }
   db.exec('CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);');
+
+  // Dynamically ensure conversation_members features (archive, mute, pin) exist
+  const memberColumns = db.prepare('PRAGMA table_info(conversation_members)').all().map(c => c.name);
+  if (!memberColumns.includes('is_archived')) {
+    db.exec('ALTER TABLE conversation_members ADD COLUMN is_archived INTEGER DEFAULT 0;');
+  }
+  if (!memberColumns.includes('is_muted')) {
+    db.exec('ALTER TABLE conversation_members ADD COLUMN is_muted INTEGER DEFAULT 0;');
+  }
+  if (!memberColumns.includes('is_pinned')) {
+    db.exec('ALTER TABLE conversation_members ADD COLUMN is_pinned INTEGER DEFAULT 0;');
+  }
 
   // Clean up old static demo test users (rahul, priya, alex)
   try {

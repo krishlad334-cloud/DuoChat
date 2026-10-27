@@ -439,6 +439,68 @@ export function ChatProvider({ children }) {
     }
   };
 
+  // 10. Delete, Clear, Archive, Mute, Pin, Unread Chat Operations
+  const deleteChat = async (conversationId) => {
+    try {
+      await chatAPI.deleteChat(conversationId);
+      if (activeConversation?.id === conversationId) {
+        setActiveConversation(null);
+        setIsMobileChatOpen(false);
+      }
+      await fetchConversations();
+    } catch (err) {
+      console.error('Failed to delete chat:', err);
+    }
+  };
+
+  const clearChat = async (conversationId) => {
+    try {
+      await chatAPI.clearChat(conversationId);
+      if (activeConversation?.id === conversationId) {
+        setMessages([]);
+      }
+      await fetchConversations();
+    } catch (err) {
+      console.error('Failed to clear chat:', err);
+    }
+  };
+
+  const archiveChat = async (conversationId, isArchived) => {
+    try {
+      await chatAPI.archiveChat(conversationId, isArchived);
+      await fetchConversations();
+    } catch (err) {
+      console.error('Failed to archive chat:', err);
+    }
+  };
+
+  const muteChat = async (conversationId, isMuted) => {
+    try {
+      await chatAPI.muteChat(conversationId, isMuted);
+      await fetchConversations();
+    } catch (err) {
+      console.error('Failed to mute chat:', err);
+    }
+  };
+
+  const pinChat = async (conversationId, isPinned) => {
+    try {
+      await chatAPI.pinChat(conversationId, isPinned);
+      await fetchConversations();
+    } catch (err) {
+      console.error('Failed to pin chat:', err);
+    }
+  };
+
+  const markChatUnread = async (conversationId) => {
+    try {
+      await chatAPI.markAsUnread(conversationId);
+      await fetchConversations();
+    } catch (err) {
+      console.error('Failed to mark chat unread:', err);
+    }
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -462,7 +524,13 @@ export function ChatProvider({ children }) {
         startDirectChat,
         startGroupChat,
         fetchConversations,
-        setActiveConversation
+        setActiveConversation,
+        deleteChat,
+        clearChat,
+        archiveChat,
+        muteChat,
+        pinChat,
+        markChatUnread
       }}
     >
       {children}

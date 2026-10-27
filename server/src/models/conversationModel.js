@@ -65,7 +65,10 @@ const ConversationModel = {
 
   getById(conversationId, currentUserId) {
     const convStmt = db.prepare(`
-      SELECT c.*, cm.last_read_message_id, cm.role as user_role
+      SELECT c.*, cm.last_read_message_id, cm.role as user_role,
+             COALESCE(cm.is_archived, 0) as is_archived,
+             COALESCE(cm.is_muted, 0) as is_muted,
+             COALESCE(cm.is_pinned, 0) as is_pinned
       FROM conversations c
       JOIN conversation_members cm ON cm.conversation_id = c.id AND cm.user_id = ?
       WHERE c.id = ?
@@ -116,11 +119,14 @@ const ConversationModel = {
 
   getUserConversations(userId) {
     const convListStmt = db.prepare(`
-      SELECT c.*, cm.last_read_message_id, cm.role as user_role
+      SELECT c.*, cm.last_read_message_id, cm.role as user_role,
+             COALESCE(cm.is_archived, 0) as is_archived,
+             COALESCE(cm.is_muted, 0) as is_muted,
+             COALESCE(cm.is_pinned, 0) as is_pinned
       FROM conversations c
       JOIN conversation_members cm ON cm.conversation_id = c.id
       WHERE cm.user_id = ?
-      ORDER BY c.updated_at DESC
+      ORDER BY cm.is_pinned DESC, c.updated_at DESC
     `);
     const conversations = convListStmt.all(userId);
 
@@ -164,6 +170,51 @@ const ConversationModel = {
 
       return conv;
     });
+  },
+
+  deleteConversation(conversationId, userId) {
+    // Delete membership
+    db.prepare('DELETE FROM conversation_members WHERE conversation_id = ? AND user_id = ?')
+      .run(conversationId, userId);
+
+    // If no members remain, cascade delete conversation and its messages
+    const remaining = db.prepare('SELECT COUNT(*) as count FROM conversation_members WHERE conversation_id = ?')
+      .get(conversationId);
+    if (!remaining || remaining.count === 0) {
+      db.prepare('DELETE FROM messages WHERE conversation_id = ?').run(conversationId);
+      db.prepare('DELETE FROM conversations WHERE id = ?').run(conversationId);
+    }
+    return true;
+  },
+
+  clearMessages(conversationId) {
+    db.prepare('DELETE FROM messages WHERE conversation_id = ?').run(conversationId);
+    db.prepare("UPDATE conversations SET updated_at = datetime('now') WHERE id = ?").run(conversationId);
+    return true;
+  },
+
+  setArchived(conversationId, userId, isArchived) {
+    db.prepare('UPDATE conversation_members SET is_archived = ? WHERE conversation_id = ? AND user_id = ?')
+      .run(isArchived ? 1 : 0, conversationId, userId);
+    return true;
+  },
+
+  setMuted(conversationId, userId, isMuted) {
+    db.prepare('UPDATE conversation_members SET is_muted = ? WHERE conversation_id = ? AND user_id = ?')
+      .run(isMuted ? 1 : 0, conversationId, userId);
+    return true;
+  },
+
+  setPinned(conversationId, userId, isPinned) {
+    db.prepare('UPDATE conversation_members SET is_pinned = ? WHERE conversation_id = ? AND user_id = ?')
+      .run(isPinned ? 1 : 0, conversationId, userId);
+    return true;
+  },
+
+  markAsUnread(conversationId, userId) {
+    db.prepare('UPDATE conversation_members SET last_read_message_id = 0 WHERE conversation_id = ? AND user_id = ?')
+      .run(conversationId, userId);
+    return true;
   },
 
   isMember(conversationId, userId) {

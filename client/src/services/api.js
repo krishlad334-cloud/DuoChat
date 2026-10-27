@@ -50,6 +50,12 @@ export const chatAPI = {
   addMember: (chatId, userId) => api.post(`/chats/${chatId}/members`, { userId }),
   removeMember: (chatId, userId) => api.delete(`/chats/${chatId}/members/${userId}`),
   markAsRead: (chatId, lastMessageId) => api.post(`/chats/${chatId}/read`, { lastMessageId }),
+  deleteChat: (chatId) => api.delete(`/chats/${chatId}`),
+  clearChat: (chatId) => api.post(`/chats/${chatId}/clear`),
+  archiveChat: (chatId, isArchived) => api.post(`/chats/${chatId}/archive`, { isArchived }),
+  muteChat: (chatId, isMuted) => api.post(`/chats/${chatId}/mute`, { isMuted }),
+  pinChat: (chatId, isPinned) => api.post(`/chats/${chatId}/pin`, { isPinned }),
+  markAsUnread: (chatId) => api.post(`/chats/${chatId}/unread`),
 };
 
 export const messageAPI = {

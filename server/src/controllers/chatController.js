@@ -165,6 +165,69 @@ const ChatController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  deleteChat(req, res, next) {
+    try {
+      const conversationId = Number(req.params.id);
+      ConversationModel.deleteConversation(conversationId, req.user.id);
+      res.json({ success: true, conversationId, message: 'Chat deleted.' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  clearChat(req, res, next) {
+    try {
+      const conversationId = Number(req.params.id);
+      ConversationModel.clearMessages(conversationId);
+      res.json({ success: true, conversationId, message: 'Chat history cleared.' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  toggleArchive(req, res, next) {
+    try {
+      const conversationId = Number(req.params.id);
+      const { isArchived } = req.body;
+      ConversationModel.setArchived(conversationId, req.user.id, Boolean(isArchived));
+      res.json({ success: true, conversationId, isArchived: Boolean(isArchived) });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  toggleMute(req, res, next) {
+    try {
+      const conversationId = Number(req.params.id);
+      const { isMuted } = req.body;
+      ConversationModel.setMuted(conversationId, req.user.id, Boolean(isMuted));
+      res.json({ success: true, conversationId, isMuted: Boolean(isMuted) });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  togglePin(req, res, next) {
+    try {
+      const conversationId = Number(req.params.id);
+      const { isPinned } = req.body;
+      ConversationModel.setPinned(conversationId, req.user.id, Boolean(isPinned));
+      res.json({ success: true, conversationId, isPinned: Boolean(isPinned) });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  markUnread(req, res, next) {
+    try {
+      const conversationId = Number(req.params.id);
+      ConversationModel.markAsUnread(conversationId, req.user.id);
+      res.json({ success: true, conversationId, isUnread: true });
+    } catch (err) {
+      next(err);
+    }
   }
 };
 

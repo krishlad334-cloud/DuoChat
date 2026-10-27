@@ -30,7 +30,7 @@ export default function SearchUserModal({ isOpen, onClose }) {
       } finally {
         setLoading(false);
       }
-    }, 200);
+    }, 150);
 
     return () => clearTimeout(timer);
   }, [isOpen, query]);
@@ -93,6 +93,12 @@ export default function SearchUserModal({ isOpen, onClose }) {
           </div>
         </div>
 
+        {/* Contacts List Header */}
+        <div className="px-4 py-2 bg-zinc-100/70 dark:bg-[#1c2733] border-b border-zinc-200/60 dark:border-[#242f3d]/60 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
+          <span>{query ? 'Search Results' : 'Registered Users on Duo Chat'}</span>
+          <span>{users.length} {users.length === 1 ? 'contact' : 'contacts'}</span>
+        </div>
+
         {/* Contacts List */}
         <div className="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-[#242f3d]/50">
           {loading ? (
@@ -103,12 +109,12 @@ export default function SearchUserModal({ isOpen, onClose }) {
             <div className="py-12 px-6 text-center text-zinc-400">
               <Phone className="w-10 h-10 mx-auto mb-2 text-[#3390ec]/30 dark:text-[#5288c1]/30" />
               <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-                {query ? 'No contact found' : 'Search contacts by phone'}
+                {query ? 'No contact found' : 'No other users registered yet'}
               </p>
               <p className="text-xs mt-1 text-zinc-500">
                 {query
-                  ? `No user registered with "${query}". Enter their registered phone number.`
-                  : 'Enter a registered user\'s phone number to start chatting immediately.'}
+                  ? `No user registered with "${query}". Enter a valid phone number or name.`
+                  : 'When new users create an account, they appear here instantly.'}
               </p>
             </div>
           ) : (
