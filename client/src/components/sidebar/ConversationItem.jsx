@@ -36,7 +36,7 @@ export default function ConversationItem({ conversation }) {
   const renderLastMessage = () => {
     if (isTyping) {
       return (
-        <span className="text-violet-600 dark:text-violet-400 font-medium animate-pulse">
+        <span className="text-[#3390ec] dark:text-[#5288c1] font-medium animate-pulse">
           typing...
         </span>
       );
@@ -45,7 +45,7 @@ export default function ConversationItem({ conversation }) {
     if (!lastMsg) {
       if (!isGroup && otherUser?.phone) {
         return (
-          <span className="text-xs text-violet-600 dark:text-violet-400 flex items-center gap-1 font-medium">
+          <span className="text-xs text-[#3390ec] dark:text-[#5288c1] flex items-center gap-1 font-medium">
             <Phone className="w-3 h-3" />
             <span>{otherUser.phone}</span>
           </span>
@@ -58,7 +58,7 @@ export default function ConversationItem({ conversation }) {
       return (
         <span className="italic text-zinc-400 flex items-center gap-1">
           <Ban className="w-3 h-3" />
-          <span>This message was deleted</span>
+          <span>Message was deleted</span>
         </span>
       );
     }
@@ -68,7 +68,7 @@ export default function ConversationItem({ conversation }) {
         {isLastMsgOwn && (
           <span className="flex-shrink-0">
             {lastMsg.status === 'read' ? (
-              <CheckCheck className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400 stroke-[2.5]" />
+              <CheckCheck className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-[#3390ec] dark:text-[#5288c1]'} stroke-[2.5]`} />
             ) : lastMsg.status === 'delivered' ? (
               <CheckCheck className="w-3.5 h-3.5 text-zinc-400 stroke-[2]" />
             ) : (
@@ -110,16 +110,20 @@ export default function ConversationItem({ conversation }) {
     <button
       type="button"
       onClick={() => selectConversation(conversation)}
-      className={`w-full px-3.5 py-3 flex items-center gap-3.5 text-left transition-colors relative border-b border-zinc-100 dark:border-zinc-800/50 ${
+      className={`w-full px-3.5 py-3 flex items-center gap-3.5 text-left transition-colors relative ${
         isSelected
-          ? 'bg-violet-50/70 dark:bg-violet-950/30 text-zinc-900 dark:text-white before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:bg-gradient-to-b before:from-violet-600 before:to-indigo-600 before:rounded-r-full'
-          : 'hover:bg-zinc-50 dark:hover:bg-[#18181b]/70 bg-white dark:bg-[#0e0e11] text-zinc-800 dark:text-zinc-200'
+          ? 'bg-[#3390ec] dark:bg-[#2b5278] text-white'
+          : 'hover:bg-zinc-100 dark:hover:bg-[#202b36] bg-white dark:bg-[#17212b] text-zinc-800 dark:text-zinc-200'
       }`}
     >
-      {/* Avatar */}
+      {/* Telegram Avatar */}
       <div className="flex-shrink-0">
         {isGroup ? (
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600/10 to-indigo-600/10 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold border border-violet-500/20">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${
+            isSelected
+              ? 'bg-white/20 text-white'
+              : 'bg-gradient-to-tr from-[#3390ec] to-[#5288c1] text-white shadow-xs'
+          }`}>
             <Users className="w-6 h-6" />
           </div>
         ) : (
@@ -133,16 +137,18 @@ export default function ConversationItem({ conversation }) {
         )}
       </div>
 
-      {/* Info */}
+      {/* Info Container */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-0.5">
-          <h3 className="text-sm font-semibold truncate text-zinc-900 dark:text-white">
+          <h3 className={`text-sm font-semibold truncate ${isSelected ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
             {title}
           </h3>
           <span
             className={`text-[11px] whitespace-nowrap ml-2 ${
-              unreadCount > 0
-                ? 'text-violet-600 dark:text-violet-400 font-semibold'
+              isSelected
+                ? 'text-white/80'
+                : unreadCount > 0
+                ? 'text-[#3390ec] dark:text-[#5288c1] font-bold'
                 : 'text-zinc-400 dark:text-zinc-500'
             }`}
           >
@@ -150,12 +156,16 @@ export default function ConversationItem({ conversation }) {
           </span>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+        <div className={`flex items-center justify-between text-xs ${isSelected ? 'text-white/90' : 'text-zinc-500 dark:text-zinc-400'}`}>
           <div className="truncate pr-2">{renderLastMessage()}</div>
 
-          {/* Royal Violet & Indigo Badge */}
+          {/* Telegram Pill Badge */}
           {unreadCount > 0 && (
-            <span className="flex-shrink-0 min-w-5 h-5 px-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-full text-[11px] font-bold flex items-center justify-center shadow-sm shadow-violet-500/25">
+            <span className={`flex-shrink-0 min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center ${
+              isSelected
+                ? 'bg-white text-[#3390ec]'
+                : 'bg-[#3390ec] dark:bg-[#5288c1] text-white'
+            }`}>
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}

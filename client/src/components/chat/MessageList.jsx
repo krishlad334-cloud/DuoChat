@@ -99,11 +99,11 @@ export default function MessageList() {
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="relative flex-1 overflow-y-auto px-4 sm:px-10 py-3 space-y-1 duo-chat-bg-light dark:duo-chat-bg-dark"
+      className="relative flex-1 overflow-y-auto px-4 sm:px-12 md:px-20 lg:px-28 py-3 space-y-1.5 telegram-chat-bg-light dark:telegram-chat-bg-dark"
     >
       {/* Loading older messages spinner */}
       {loadingOlder && (
-        <div className="py-2 flex items-center justify-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+        <div className="py-2 flex items-center justify-center gap-2 text-xs text-[#3390ec] dark:text-[#5288c1] font-medium">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span>Loading older messages...</span>
         </div>
@@ -111,14 +111,14 @@ export default function MessageList() {
 
       {/* Empty State */}
       {!loadingMessages && messages.length === 0 && (
-        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 text-slate-400">
-          <div className="px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl shadow-xs border border-slate-200/50 dark:border-slate-700/50 text-xs text-slate-600 dark:text-slate-300 max-w-sm">
-            🔒 Messages are real-time and end-to-end synchronized. Say hello to start chatting!
+        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6">
+          <div className="px-4 py-2 bg-black/30 dark:bg-black/50 backdrop-blur-md rounded-2xl text-xs text-white max-w-sm shadow-sm">
+            🔒 No messages here yet. Say hello or send a photo!
           </div>
         </div>
       )}
 
-      {/* Messages grouped by date */}
+      {/* Messages grouped by date (Telegram Frosted Pill Style) */}
       {messages.map((message, idx) => {
         const currentDateSeparator = getDateSeparator(message.created_at);
         const prevDateSeparator =
@@ -130,8 +130,8 @@ export default function MessageList() {
         return (
           <React.Fragment key={message.id || idx}>
             {showDateSeparator && (
-              <div className="flex items-center justify-center my-3">
-                <span className="px-3 py-1 bg-white/90 dark:bg-slate-800/90 text-[11px] font-semibold text-slate-600 dark:text-slate-300 rounded-full shadow-xs border border-slate-200/50 dark:border-slate-700/50">
+              <div className="flex items-center justify-center my-3 select-none">
+                <span className="px-3.5 py-0.5 bg-black/25 dark:bg-black/45 backdrop-blur-md text-[11px] font-semibold text-white rounded-full shadow-xs">
                   {currentDateSeparator}
                 </span>
               </div>
@@ -148,13 +148,13 @@ export default function MessageList() {
         );
       })}
 
-      {/* Typing Indicator Bubble */}
+      {/* Typing Indicator Bubble (Telegram Style) */}
       {typingUserNames.length > 0 && (
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 px-3 py-1.5 bg-white/90 dark:bg-slate-800/90 rounded-2xl w-fit shadow-xs border border-slate-200/60 dark:border-slate-700/60 animate-in fade-in">
-          <div className="flex gap-1 items-center px-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-1" />
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-2" />
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-3" />
+        <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300 px-3.5 py-1.5 bg-white/90 dark:bg-[#182533] rounded-2xl w-fit shadow-xs border border-[#e4e7ea] dark:border-[#242f3d] animate-in fade-in">
+          <div className="flex gap-1 items-center px-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3390ec] dark:bg-[#5288c1] animate-bounce" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3390ec] dark:bg-[#5288c1] animate-bounce [animation-delay:0.2s]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3390ec] dark:bg-[#5288c1] animate-bounce [animation-delay:0.4s]" />
           </div>
           <span>
             {typingUserNames.join(', ')} typing...
@@ -165,11 +165,11 @@ export default function MessageList() {
       {/* Bottom scroll anchor */}
       <div ref={bottomRef} />
 
-      {/* Floating Scroll to Bottom button */}
+      {/* Telegram Floating Scroll to Bottom button */}
       {showScrollBottom && (
         <button
           onClick={scrollToBottom}
-          className="fixed bottom-20 right-6 sm:right-10 p-2.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-200 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition active:scale-95 z-30"
+          className="fixed bottom-20 right-6 sm:right-10 p-3 bg-white dark:bg-[#17212b] text-[#3390ec] dark:text-[#5288c1] rounded-full shadow-xl border border-[#e4e7ea] dark:border-[#242f3d] hover:bg-zinc-50 dark:hover:bg-[#202b36] transition active:scale-95 z-30"
           title="Scroll to bottom"
         >
           <ChevronDown className="w-5 h-5" />

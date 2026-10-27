@@ -80,15 +80,16 @@ export default function GroupModal({ isOpen, onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-[#121215] w-full max-w-md rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[85vh]">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-4.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white dark:bg-[#17212b] w-full max-w-md rounded-3xl shadow-2xl border border-zinc-200 dark:border-[#242f3d] overflow-hidden flex flex-col max-h-[85vh]">
+        {/* Telegram Header */}
+        <div className="bg-[#3390ec] dark:bg-[#5288c1] text-white p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <Users className="w-5 h-5" />
             <h3 className="text-base font-bold">New Group</h3>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-1 rounded-full hover:bg-white/10 transition"
           >
@@ -97,7 +98,7 @@ export default function GroupModal({ isOpen, onClose }) {
         </div>
 
         <form onSubmit={handleCreate} className="flex-1 flex flex-col overflow-hidden">
-          <div className="p-4 space-y-3 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#18181b]">
+          <div className="p-4 space-y-3 border-b border-zinc-200 dark:border-[#242f3d] bg-zinc-50 dark:bg-[#0e1621]">
             {error && (
               <div className="p-2.5 text-xs text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 rounded-xl">
                 {error}
@@ -113,8 +114,8 @@ export default function GroupModal({ isOpen, onClose }) {
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Design Sprint 🚀"
-                className="w-full px-3.5 py-2 bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 text-zinc-900 dark:text-white placeholder-zinc-400"
+                placeholder="e.g. Developers Hub 🚀"
+                className="w-full px-3.5 py-2.5 bg-white dark:bg-[#17212b] border border-zinc-200 dark:border-[#242f3d] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#3390ec]/40 dark:focus:ring-[#5288c1]/40 text-zinc-900 dark:text-white placeholder-zinc-400"
               />
             </div>
 
@@ -127,15 +128,15 @@ export default function GroupModal({ isOpen, onClose }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search name or phone number..."
-                className="w-full px-3.5 py-2 bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/40 text-zinc-900 dark:text-white placeholder-zinc-400"
+                className="w-full px-3.5 py-2 bg-white dark:bg-[#17212b] border border-zinc-200 dark:border-[#242f3d] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#3390ec]/40 dark:focus:ring-[#5288c1]/40 text-zinc-900 dark:text-white placeholder-zinc-400"
               />
             </div>
           </div>
 
           {/* Member List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800/60">
+          <div className="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-[#242f3d]/60">
             {loading ? (
-              <div className="flex items-center justify-center py-8 text-violet-500">
+              <div className="flex items-center justify-center py-8 text-[#3390ec] dark:text-[#5288c1]">
                 <Loader2 className="w-6 h-6 animate-spin" />
               </div>
             ) : filteredUsers.length === 0 ? (
@@ -149,7 +150,7 @@ export default function GroupModal({ isOpen, onClose }) {
                   <div
                     key={u.id}
                     onClick={() => toggleSelect(u.id)}
-                    className="p-3.5 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-[#18181b] cursor-pointer transition select-none"
+                    className="p-3.5 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-[#202b36] cursor-pointer transition select-none"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar src={u.avatar} name={u.name} size="md" />
@@ -158,7 +159,7 @@ export default function GroupModal({ isOpen, onClose }) {
                           {u.name}
                         </div>
                         {u.phone && (
-                          <div className="text-xs text-violet-600 dark:text-violet-400 font-medium flex items-center gap-1">
+                          <div className="text-xs text-[#3390ec] dark:text-[#5288c1] font-medium flex items-center gap-1">
                             <Phone className="w-2.5 h-2.5" />
                             <span>{u.phone}</span>
                           </div>
@@ -172,7 +173,7 @@ export default function GroupModal({ isOpen, onClose }) {
                     <div
                       className={`w-5 h-5 rounded-md flex items-center justify-center border transition ${
                         isSelected
-                          ? 'bg-gradient-to-tr from-violet-600 to-indigo-600 border-violet-600 text-white shadow-sm'
+                          ? 'bg-[#3390ec] dark:bg-[#5288c1] border-[#3390ec] dark:border-[#5288c1] text-white shadow-xs'
                           : 'border-zinc-300 dark:border-zinc-700'
                       }`}
                     >
@@ -185,18 +186,18 @@ export default function GroupModal({ isOpen, onClose }) {
           </div>
 
           {/* Footer */}
-          <div className="p-3.5 bg-zinc-50 dark:bg-[#18181b] border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
+          <div className="p-3.5 bg-zinc-50 dark:bg-[#0e1621] border-t border-zinc-200 dark:border-[#242f3d] flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
+              className="px-4 py-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-[#242f3d] rounded-xl transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md shadow-violet-500/25 flex items-center gap-2 transition disabled:opacity-50"
+              className="px-5 py-2 bg-[#3390ec] dark:bg-[#5288c1] hover:bg-[#2b7dce] dark:hover:bg-[#4677aa] text-white text-xs font-semibold rounded-xl shadow-md flex items-center gap-2 transition disabled:opacity-50"
             >
               {submitting ? (
                 <>
