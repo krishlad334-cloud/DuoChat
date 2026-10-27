@@ -28,7 +28,7 @@ function initDb() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL COLLATE NOCASE,
-      email TEXT UNIQUE NOT NULL COLLATE NOCASE,
+      email TEXT COLLATE NOCASE,
       password TEXT NOT NULL,
       name TEXT NOT NULL,
       avatar TEXT,
@@ -83,6 +83,34 @@ function initDb() {
     CREATE INDEX IF NOT EXISTS idx_messages_conv_created ON messages(conversation_id, id DESC);
     CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
   `);
+
+  // Dynamically ensure phone and about columns exist in users table
+  const userColumns = db.prepare('PRAGMA table_info(users)').all().map(c => c.name);
+  if (!userColumns.includes('phone')) {
+    db.exec('ALTER TABLE users ADD COLUMN phone TEXT;');
+  }
+  if (!userColumns.includes('about')) {
+    db.exec("ALTER TABLE users ADD COLUMN about TEXT DEFAULT 'Hey there! I am using WhatsApp.';");
+  }
+  db.exec('CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);');
+
+  // Clean up old static demo test users (rahul, priya, alex)
+  try {
+    const staticUsers = db.prepare("SELECT id FROM users WHERE username IN ('rahul', 'priya', 'alex')").all();
+    if (staticUsers.length > 0) {
+      for (const u of staticUsers) {
+        db.prepare('DELETE FROM messages WHERE sender_id = ?').run(u.id);
+        db.prepare('DELETE FROM conversation_members WHERE user_id = ?').run(u.id);
+        db.prepare('DELETE FROM users WHERE id = ?').run(u.id);
+      }
+      db.exec(`
+        DELETE FROM conversations
+        WHERE id NOT IN (SELECT DISTINCT conversation_id FROM conversation_members);
+      `);
+    }
+  } catch (e) {
+    // Ignore cleanup error
+  }
 }
 
 initDb();

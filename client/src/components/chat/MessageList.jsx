@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import MessageBubble from './MessageBubble';
 import { getDateSeparator } from '../../utils/dateUtils';
-import { ChevronDown, Loader2, Sparkles } from 'lucide-react';
+import { ChevronDown, Loader2 } from 'lucide-react';
 import ImageModal from './ImageModal';
 
 export default function MessageList() {
@@ -71,11 +71,9 @@ export default function MessageList() {
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
 
-    // Show "scroll to bottom" button if scrolled up > 150px
     const isUp = scrollHeight - scrollTop - clientHeight > 150;
     setShowScrollBottom(isUp);
 
-    // Infinite scroll up: if scrolled near top (<= 40px)
     if (scrollTop <= 40 && hasMoreMessages && !loadingOlder && !loadingMessages) {
       prevScrollHeightRef.current = scrollHeight;
       loadOlderMessages();
@@ -95,17 +93,17 @@ export default function MessageList() {
 
   // Typing indicator users for active conversation
   const activeTyping = typingUsers[activeConversation?.id] || {};
-  const typingUserNames = Object.values(activeTyping).map(u => u.name || u.username);
+  const typingUserNames = Object.values(activeTyping).map(u => u.name || u.phone || u.username);
 
   return (
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="relative flex-1 overflow-y-auto px-4 py-3 space-y-1 bg-slate-50/50 dark:bg-slate-950/40"
+      className="relative flex-1 overflow-y-auto px-4 sm:px-12 py-3 space-y-1 wa-chat-bg-light dark:wa-chat-bg-dark"
     >
       {/* Loading older messages spinner */}
       {loadingOlder && (
-        <div className="py-2 flex items-center justify-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+        <div className="py-2 flex items-center justify-center gap-2 text-xs text-[#00a884] font-medium">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span>Loading older messages...</span>
         </div>
@@ -113,16 +111,10 @@ export default function MessageList() {
 
       {/* Empty State */}
       {!loadingMessages && messages.length === 0 && (
-        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 text-slate-400">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-500 flex items-center justify-center mb-3">
-            <Sparkles className="w-7 h-7" />
+        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-6 text-[#8696a0]">
+          <div className="px-4 py-2 bg-white/80 dark:bg-[#182229]/80 backdrop-blur-xs rounded-lg shadow-xs text-xs text-[#54656f] dark:text-[#aebac1] max-w-sm">
+            🔒 Messages are end-to-end synchronized in real-time. Say hello to start the chat!
           </div>
-          <h4 className="text-base font-semibold text-slate-700 dark:text-slate-300">
-            No messages yet
-          </h4>
-          <p className="text-xs text-slate-500 max-w-xs mt-1">
-            Send a message or share a photo to break the ice!
-          </p>
         </div>
       )}
 
@@ -138,8 +130,8 @@ export default function MessageList() {
         return (
           <React.Fragment key={message.id || idx}>
             {showDateSeparator && (
-              <div className="flex items-center justify-center my-4">
-                <span className="px-3 py-1 bg-slate-200/80 dark:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-300 rounded-full shadow-xs">
+              <div className="flex items-center justify-center my-3">
+                <span className="px-3 py-1 bg-white/90 dark:bg-[#182229]/90 text-[11px] font-semibold tracking-wider text-[#54656f] dark:text-[#8696a0] rounded-md shadow-xs uppercase">
                   {currentDateSeparator}
                 </span>
               </div>
@@ -156,28 +148,28 @@ export default function MessageList() {
         );
       })}
 
-      {/* Typing Indicator Bubble */}
+      {/* WhatsApp Typing Indicator Bubble */}
       {typingUserNames.length > 0 && (
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 p-2 bg-white/70 dark:bg-slate-800/70 border border-slate-200/50 dark:border-slate-700/50 rounded-2xl w-fit shadow-xs animate-in fade-in">
+        <div className="flex items-center gap-2 text-xs text-[#54656f] dark:text-[#aebac1] px-3 py-1.5 bg-white dark:bg-[#202c33] rounded-lg w-fit shadow-xs animate-in fade-in">
           <div className="flex gap-1 items-center px-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-1" />
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-2" />
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce-dot-3" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00a884] animate-bounce-dot-1" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00a884] animate-bounce-dot-2" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00a884] animate-bounce-dot-3" />
           </div>
           <span>
-            {typingUserNames.join(', ')} {typingUserNames.length === 1 ? 'is' : 'are'} typing...
+            {typingUserNames.join(', ')} typing...
           </span>
         </div>
       )}
 
-      {/* Invisible anchor to scroll down to */}
+      {/* Bottom scroll anchor */}
       <div ref={bottomRef} />
 
       {/* Floating Scroll to Bottom button */}
       {showScrollBottom && (
         <button
           onClick={scrollToBottom}
-          className="fixed bottom-20 right-6 sm:right-10 p-2.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-200 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition active:scale-95 z-30"
+          className="fixed bottom-20 right-6 sm:right-10 p-2.5 bg-white dark:bg-[#202c33] text-[#54656f] dark:text-[#aebac1] rounded-full shadow-lg border border-[#e9edef] dark:border-[#222d34] hover:bg-[#f0f2f5] dark:hover:bg-[#2a3942] transition active:scale-95 z-30"
           title="Scroll to bottom"
         >
           <ChevronDown className="w-5 h-5" />

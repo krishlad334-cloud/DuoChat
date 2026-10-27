@@ -75,7 +75,7 @@ const ConversationModel = {
 
     // Get members
     const membersStmt = db.prepare(`
-      SELECT u.id, u.username, u.name, u.avatar, u.status, u.last_seen, cm.role, cm.joined_at, cm.last_read_message_id
+      SELECT u.id, u.phone, u.username, u.name, u.about, u.avatar, u.status, u.last_seen, cm.role, cm.joined_at, cm.last_read_message_id
       FROM conversation_members cm
       JOIN users u ON u.id = cm.user_id
       WHERE cm.conversation_id = ?
@@ -125,7 +125,7 @@ const ConversationModel = {
     const conversations = convListStmt.all(userId);
 
     const membersStmt = db.prepare(`
-      SELECT u.id, u.username, u.name, u.avatar, u.status, u.last_seen, cm.role
+      SELECT u.id, u.phone, u.username, u.name, u.about, u.avatar, u.status, u.last_seen, cm.role
       FROM conversation_members cm
       JOIN users u ON u.id = cm.user_id
       WHERE cm.conversation_id = ?

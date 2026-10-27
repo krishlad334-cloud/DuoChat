@@ -16,6 +16,22 @@ const UserController = {
     }
   },
 
+  lookupByPhone(req, res, next) {
+    try {
+      const phone = req.query.phone || '';
+      if (!phone.trim()) {
+        return res.status(400).json({ success: false, error: 'Phone number is required.' });
+      }
+      const user = UserModel.findByPhone(phone.trim());
+      if (!user || user.id === req.user.id) {
+        return res.json({ success: true, user: null });
+      }
+      res.json({ success: true, user: UserModel.findById(user.id) });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   getAllUsers(req, res, next) {
     try {
       const users = UserModel.getAllExcept(req.user.id);

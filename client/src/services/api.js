@@ -63,6 +63,7 @@ export const messageAPI = {
 
 export const userAPI = {
   search: (q) => api.get('/users/search', { params: { q } }),
+  lookupPhone: (phone) => api.get('/users/lookup', { params: { phone } }),
   getAll: () => api.get('/users'),
 };
 

@@ -7,49 +7,36 @@ function generateToken(user) {
   return jwt.sign(
     {
       id: user.id,
+      phone: user.phone,
       username: user.username,
       email: user.email,
       name: user.name
     },
     JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '30d' }
   );
 }
 
 const AuthController = {
   async register(req, res, next) {
     try {
-      const { username, email, password, name, avatar } = req.body;
+      const { phone, name, password, username, email, about, avatar } = req.body;
 
-      // Validation
-      if (!username || !email || !password || !name) {
+      // Primary validation for WhatsApp-style registration: Phone, Name, Password
+      if (!phone || !name || !password) {
         return res.status(400).json({
           success: false,
-          error: 'Please fill in all required fields (username, email, password, name).'
+          error: 'Please provide your Phone Number, Name, and Password.'
         });
       }
 
-      const cleanUsername = username.trim().toLowerCase();
-      const cleanEmail = email.trim().toLowerCase();
+      const cleanPhone = phone.trim();
+      const rawDigits = cleanPhone.replace(/[^0-9]/g, '');
 
-      if (cleanUsername.length < 3 || cleanUsername.length > 25) {
+      if (rawDigits.length < 6 || rawDigits.length > 16) {
         return res.status(400).json({
           success: false,
-          error: 'Username must be between 3 and 25 characters.'
-        });
-      }
-
-      if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUsername)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Username can only contain letters, numbers, underscores, periods, and hyphens.'
-        });
-      }
-
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Please enter a valid email address.'
+          error: 'Please enter a valid phone number (at least 6 digits).'
         });
       }
 
@@ -60,35 +47,56 @@ const AuthController = {
         });
       }
 
-      // Check duplicates
-      const existingUser = UserModel.findByUsername(cleanUsername);
-      if (existingUser) {
+      // Check duplicate phone
+      const existingPhone = UserModel.findByPhone(cleanPhone);
+      if (existingPhone) {
         return res.status(409).json({
           success: false,
-          error: 'Username is already taken. Please choose another.'
+          error: 'An account with this phone number already exists. Please sign in.'
         });
       }
 
-      const existingEmail = UserModel.findByEmail(cleanEmail);
-      if (existingEmail) {
-        return res.status(409).json({
-          success: false,
-          error: 'An account with this email already exists.'
-        });
+      // Fallback or unique username
+      let cleanUsername = username ? username.trim().toLowerCase() : ('user_' + rawDigits);
+      cleanUsername = cleanUsername.replace(/[^a-zA-Z0-9_.-]/g, '_');
+
+      // Check if username already exists, if so append random suffix
+      if (UserModel.findByUsername(cleanUsername)) {
+        cleanUsername = `${cleanUsername}_${Math.floor(Math.random() * 1000)}`;
+      }
+
+      // Email (optional or derived)
+      let cleanEmail = email ? email.trim().toLowerCase() : `${rawDigits}@whatsapp.local`;
+      if (email && email.trim()) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+          return res.status(400).json({
+            success: false,
+            error: 'Please enter a valid email address or leave it blank.'
+          });
+        }
+        const existingEmail = UserModel.findByEmail(cleanEmail);
+        if (existingEmail) {
+          return res.status(409).json({
+            success: false,
+            error: 'An account with this email already exists.'
+          });
+        }
       }
 
       // Hash password
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      // Default avatar if none
-      const userAvatar = avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=6366f1,3b82f6,10b981,f59e0b,ec4899`;
+      // Default WhatsApp style avatar
+      const userAvatar = avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=00a884,128c7e,25d366,008069`;
 
       const newUser = UserModel.create({
+        phone: cleanPhone,
         username: cleanUsername,
         email: cleanEmail,
         password: hashedPassword,
         name: name.trim(),
+        about: about ? about.trim() : 'Hey there! I am using WhatsApp.',
         avatar: userAvatar
       });
 
@@ -112,21 +120,16 @@ const AuthController = {
       if (!identifier || !password) {
         return res.status(400).json({
           success: false,
-          error: 'Please provide both username/email and password.'
+          error: 'Please enter your phone number (or username) and password.'
         });
       }
 
-      const cleanIdentifier = identifier.trim().toLowerCase();
-      // Search by username or email
-      let user = UserModel.findByUsername(cleanIdentifier);
-      if (!user) {
-        user = UserModel.findByEmail(cleanIdentifier);
-      }
+      const user = UserModel.findByIdentifier(identifier);
 
       if (!user) {
         return res.status(401).json({
           success: false,
-          error: 'Invalid credentials. User not found.'
+          error: 'No account found with this phone number or username.'
         });
       }
 
@@ -134,7 +137,7 @@ const AuthController = {
       if (!isMatch) {
         return res.status(401).json({
           success: false,
-          error: 'Invalid credentials. Incorrect password.'
+          error: 'Incorrect password. Please try again.'
         });
       }
 
