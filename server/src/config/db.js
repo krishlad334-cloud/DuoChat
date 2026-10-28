@@ -115,22 +115,70 @@ function initDb() {
     db.exec('ALTER TABLE conversation_members ADD COLUMN is_pinned INTEGER DEFAULT 0;');
   }
 
-  // Clean up old static demo test users (rahul, priya, alex)
+  // Ensure default permanent direct login users exist for phone & multi-device testing
   try {
-    const staticUsers = db.prepare("SELECT id FROM users WHERE username IN ('rahul', 'priya', 'alex')").all();
-    if (staticUsers.length > 0) {
-      for (const u of staticUsers) {
-        db.prepare('DELETE FROM messages WHERE sender_id = ?').run(u.id);
-        db.prepare('DELETE FROM conversation_members WHERE user_id = ?').run(u.id);
-        db.prepare('DELETE FROM users WHERE id = ?').run(u.id);
+    const bcrypt = require('bcryptjs');
+    const defaultUsers = [
+      {
+        phone: '+919999988888',
+        username: 'krish',
+        name: 'Krish',
+        about: 'Available on Duo Chat',
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Krish&backgroundColor=5288c1',
+        password: 'password123'
+      },
+      {
+        phone: '+919876543210',
+        username: 'priya',
+        name: 'Priya',
+        about: 'Hey there! I am using Duo Chat.',
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Priya&backgroundColor=ec4899',
+        password: 'password123'
+      },
+      {
+        phone: '+919876543211',
+        username: 'rahul',
+        name: 'Rahul',
+        about: 'At work | Ping here anytime',
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Rahul&backgroundColor=6366f1',
+        password: 'password123'
+      },
+      {
+        phone: '+919111122222',
+        username: 'alpha',
+        name: 'User Alpha',
+        about: 'Active tester on mobile device',
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Alpha&backgroundColor=10b981',
+        password: 'password123'
       }
-      db.exec(`
-        DELETE FROM conversations
-        WHERE id NOT IN (SELECT DISTINCT conversation_id FROM conversation_members);
-      `);
+    ];
+
+    const findStmt = db.prepare('SELECT id FROM users WHERE phone = ? OR username = ? LIMIT 1');
+    const insertStmt = db.prepare(`
+      INSERT INTO users (phone, username, email, password, name, about, avatar, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'offline')
+    `);
+
+    // Ensure username alias for alpha if needed
+    db.exec("UPDATE users SET username = 'alpha' WHERE phone = '+919111122222' AND username != 'alpha';");
+
+    for (const u of defaultUsers) {
+      const existing = findStmt.get(u.phone, u.username);
+      if (!existing) {
+        const hash = bcrypt.hashSync(u.password, 10);
+        insertStmt.run(
+          u.phone,
+          u.username,
+          `${u.username}@duochat.local`,
+          hash,
+          u.name,
+          u.about,
+          u.avatar
+        );
+      }
     }
   } catch (e) {
-    // Ignore cleanup error
+    console.warn('Direct users check notice:', e.message);
   }
 }
 

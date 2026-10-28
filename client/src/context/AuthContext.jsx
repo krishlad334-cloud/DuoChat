@@ -50,6 +50,18 @@ export function AuthProvider({ children }) {
     throw new Error(res.error || 'Login failed');
   };
 
+  const directLogin = async (identifier) => {
+    const res = await authAPI.directLogin({ identifier });
+    if (res.success && res.token && res.user) {
+      setToken(res.token);
+      setUser(res.user);
+      localStorage.setItem('duochat_token', res.token);
+      localStorage.setItem('duochat_user', JSON.stringify(res.user));
+      return res.user;
+    }
+    throw new Error(res.error || 'Direct login failed');
+  };
+
   const register = async (userData) => {
     const res = await authAPI.register(userData);
     if (res.success && res.token && res.user) {
@@ -85,6 +97,7 @@ export function AuthProvider({ children }) {
         loading,
         isAuthenticated: Boolean(user && token),
         login,
+        directLogin,
         register,
         logout,
         setUser

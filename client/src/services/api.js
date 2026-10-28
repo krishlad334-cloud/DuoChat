@@ -11,9 +11,15 @@ import axios from 'axios';
  */
 export function getApiBaseUrl() {
   if (typeof window !== 'undefined') {
+    const isMobileOrRemote = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
     const saved = localStorage.getItem('duochat_api_url');
     if (saved && saved.trim()) {
-      return normalizeApiUrl(saved.trim());
+      // If opened on mobile phone or LAN IP, ignore stale localhost setting that was meant for PC
+      if (isMobileOrRemote && (saved.includes('localhost') || saved.includes('127.0.0.1'))) {
+        localStorage.removeItem('duochat_api_url');
+      } else {
+        return normalizeApiUrl(saved.trim());
+      }
     }
   }
 
@@ -23,10 +29,8 @@ export function getApiBaseUrl() {
   }
 
   if (typeof window !== 'undefined' && window.location) {
-    const { hostname, origin } = window.location;
-    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
-    if (!isLocal) {
-      // Running on Vercel or cloud domain: default to same origin /api
+    const { origin } = window.location;
+    if (origin && origin !== 'null') {
       return `${origin}/api`;
     }
   }
@@ -146,6 +150,9 @@ api.interceptors.response.use(
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
+  directLogin: (data) => api.post('/auth/direct-login', data),
+  getDirectAccounts: () => api.get('/auth/direct-accounts'),
+  getNetworkInfo: () => api.get('/network-info'),
   getMe: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
 };

@@ -10,7 +10,7 @@ import {
   Wifi,
   Sparkles
 } from 'lucide-react';
-import { getApiBaseUrl, setCustomApiUrl, resetCustomApiUrl, testApiConnection } from '../../services/api';
+import { getApiBaseUrl, setCustomApiUrl, resetCustomApiUrl, testApiConnection, authAPI } from '../../services/api';
 
 export default function ServerSettingsModal({ isOpen, onClose, onSaved }) {
   const [currentUrl, setCurrentUrl] = useState('');
@@ -18,6 +18,7 @@ export default function ServerSettingsModal({ isOpen, onClose, onSaved }) {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null); // { ok: bool, latency: number, message: string }
   const [saving, setSaving] = useState(false);
+  const [networkInfo, setNetworkInfo] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -25,6 +26,12 @@ export default function ServerSettingsModal({ isOpen, onClose, onSaved }) {
       setCurrentUrl(active);
       setInputUrl(active);
       setTestResult(null);
+
+      authAPI.getNetworkInfo()
+        .then(res => {
+          if (res.data?.success) setNetworkInfo(res.data);
+        })
+        .catch(() => {});
     }
   }, [isOpen]);
 
@@ -121,16 +128,27 @@ export default function ServerSettingsModal({ isOpen, onClose, onSaved }) {
                 className="p-2.5 bg-[#0e1621] hover:bg-[#242f3d] border border-[#242f3d] rounded-xl text-left transition flex flex-col gap-0.5"
               >
                 <span className="font-semibold text-white">Same Host (/api)</span>
-                <span className="text-[10px] text-zinc-400 truncate">Vercel Monorepo</span>
+                <span className="text-[10px] text-zinc-400 truncate">Vercel & Auto-proxy</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setPreset('http://localhost:5000/api')}
-                className="p-2.5 bg-[#0e1621] hover:bg-[#242f3d] border border-[#242f3d] rounded-xl text-left transition flex flex-col gap-0.5"
-              >
-                <span className="font-semibold text-white">Localhost (5000)</span>
-                <span className="text-[10px] text-zinc-400 truncate">Local Node server</span>
-              </button>
+              {networkInfo?.localIp ? (
+                <button
+                  type="button"
+                  onClick={() => setPreset(`http://${networkInfo.localIp}:5000/api`)}
+                  className="p-2.5 bg-[#0e1621] hover:bg-[#242f3d] border border-[#242f3d] rounded-xl text-left transition flex flex-col gap-0.5"
+                >
+                  <span className="font-semibold text-emerald-400">Wi-Fi LAN Server</span>
+                  <span className="text-[10px] text-zinc-400 truncate">{networkInfo.localIp}:5000</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setPreset('http://localhost:5000/api')}
+                  className="p-2.5 bg-[#0e1621] hover:bg-[#242f3d] border border-[#242f3d] rounded-xl text-left transition flex flex-col gap-0.5"
+                >
+                  <span className="font-semibold text-white">Localhost (5000)</span>
+                  <span className="text-[10px] text-zinc-400 truncate">Local Node server</span>
+                </button>
+              )}
             </div>
           </div>
 

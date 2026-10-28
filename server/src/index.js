@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -64,12 +65,35 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use('/uploads', express.static(uploadsDir));
 
+// Serve static frontend build if present (enables direct mobile/device access to port 5000)
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+}
+
+function getLocalIpAddress() {
+  try {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      for (const net of interfaces[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          return net.address;
+        }
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+  return 'localhost';
+}
+
 // API health checks (critical for quick client latency test and verification)
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     app: 'Duo Chat Server',
     environment: process.env.VERCEL ? 'vercel-serverless' : 'standalone',
+    localIp: getLocalIpAddress(),
     time: new Date().toISOString()
   });
 });
@@ -82,8 +106,33 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Network auto-discovery for mobile phones and other devices
+app.get('/api/network-info', (req, res) => {
+  const localIp = getLocalIpAddress();
+  const serverPort = PORT;
+  const clientPort = 5173;
+  res.json({
+    success: true,
+    localIp,
+    serverPort,
+    clientPort,
+    urls: {
+      mobileClientUrl: `http://${localIp}:${clientPort}`,
+      mobileServerUrl: `http://${localIp}:${serverPort}`,
+      directLoginKrish: `http://${localIp}:${clientPort}?direct=krish`,
+      directLoginPriya: `http://${localIp}:${clientPort}?direct=priya`,
+      directLoginRahul: `http://${localIp}:${clientPort}?direct=rahul`,
+      directLoginAlpha: `http://${localIp}:${clientPort}?direct=alpha`
+    }
+  });
+});
+
 // Root route for sanity check
 app.get('/', (req, res) => {
+  // If client index.html exists, serve it for root
+  if (fs.existsSync(path.join(clientDistPath, 'index.html'))) {
+    return res.sendFile(path.join(clientDistPath, 'index.html'));
+  }
   res.json({
     app: 'Duo Chat Server API',
     status: 'active',
@@ -97,6 +146,16 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api', messageRoutes);
 app.use('/api/users', userRoutes);
+
+// SPA client-side routing fallback
+if (fs.existsSync(clientDistPath)) {
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/socket.io')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 // 404 & Error Handlers
 app.use(notFoundHandler);
@@ -117,8 +176,11 @@ initSocketManager(io);
 
 // Only listen if not running under Vercel serverless wrapper
 if (!process.env.VERCEL) {
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
+    const localIp = getLocalIpAddress();
     console.log(`\x1b[32m✔ Duo Chat Server is running on port ${PORT}\x1b[0m`);
+    console.log(`\x1b[36m✔ Local access:    http://localhost:${PORT}\x1b[0m`);
+    console.log(`\x1b[35m✔ Mobile/Network:  http://${localIp}:${PORT}\x1b[0m`);
     console.log(`\x1b[36m✔ Socket.IO initialized and listening\x1b[0m`);
     console.log(`\x1b[33m✔ Serving uploads from: ${uploadsDir}\x1b[0m`);
   });

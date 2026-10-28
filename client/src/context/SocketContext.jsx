@@ -6,12 +6,24 @@ const SocketContext = createContext();
 
 export function getSocketUrl() {
   if (typeof window !== 'undefined') {
+    const isMobileOrRemote = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
     const customSocket = localStorage.getItem('duochat_socket_url');
-    if (customSocket && customSocket.trim()) return customSocket.trim().replace(/\/+$/, '');
+    if (customSocket && customSocket.trim()) {
+      if (isMobileOrRemote && (customSocket.includes('localhost') || customSocket.includes('127.0.0.1'))) {
+        localStorage.removeItem('duochat_socket_url');
+      } else {
+        return customSocket.trim().replace(/\/+$/, '');
+      }
+    }
 
     const customApi = localStorage.getItem('duochat_api_url');
     if (customApi && customApi.trim()) {
-      return customApi.trim().replace(/\/api\/?$/, '');
+      if (isMobileOrRemote && (customApi.includes('localhost') || customApi.includes('127.0.0.1'))) {
+        localStorage.removeItem('duochat_api_url');
+      } else {
+        return customApi.trim().replace(/\/api\/?$/, '');
+      }
     }
   }
 
@@ -22,9 +34,8 @@ export function getSocketUrl() {
   if (envApi && envApi.trim()) return envApi.trim().replace(/\/api\/?$/, '');
 
   if (typeof window !== 'undefined' && window.location) {
-    const { hostname, origin } = window.location;
-    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
-    if (!isLocal) {
+    const { origin } = window.location;
+    if (origin && origin !== 'null') {
       return origin;
     }
   }

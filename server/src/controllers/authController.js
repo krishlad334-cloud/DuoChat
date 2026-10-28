@@ -156,6 +156,93 @@ const AuthController = {
     }
   },
 
+  async directLogin(req, res, next) {
+    try {
+      const { identifier, phone, username } = req.body;
+      const target = (identifier || phone || username || '').toString().trim();
+
+      if (!target) {
+        return res.status(400).json({
+          success: false,
+          error: 'Please specify an account to log in directly.'
+        });
+      }
+
+      // Check if user exists by phone or username or email
+      let user = UserModel.findByIdentifier(target);
+
+      // If key is a known preset like 'krish', 'priya', 'rahul', 'alpha'
+      if (!user) {
+        const presets = {
+          krish: { phone: '+919999988888', name: 'Krish', username: 'krish', about: 'Available on Duo Chat' },
+          priya: { phone: '+919876543210', name: 'Priya', username: 'priya', about: 'Hey there! I am using Duo Chat.' },
+          rahul: { phone: '+919876543211', name: 'Rahul', username: 'rahul', about: 'At work | Ping here anytime' },
+          alpha: { phone: '+919111122222', name: 'User Alpha', username: 'alpha', about: 'Active tester on mobile device' }
+        };
+        const presetKey = target.toLowerCase().replace(/[^a-z]/g, '');
+        const preset = presets[presetKey];
+        if (preset) {
+          user = UserModel.findByPhone(preset.phone) || UserModel.findByUsername(preset.username);
+          if (!user) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash('password123', salt);
+            user = UserModel.create({
+              phone: preset.phone,
+              username: preset.username,
+              password: hashedPassword,
+              name: preset.name,
+              about: preset.about,
+              avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(preset.name)}&backgroundColor=5288c1`
+            });
+          }
+        }
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: `Account "${target}" was not found. Please register or select another account.`
+        });
+      }
+
+      UserModel.updateStatus(user.id, 'online');
+      const safeUser = UserModel.findById(user.id);
+      const token = generateToken(safeUser);
+
+      res.json({
+        success: true,
+        message: `Directly logged in as ${safeUser.name}`,
+        user: safeUser,
+        token
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getDirectAccounts(req, res, next) {
+    try {
+      const presets = ['+919999988888', '+919876543210', '+919876543211', '+919111122222'];
+      const users = [];
+      for (const phone of presets) {
+        const u = UserModel.findByPhone(phone);
+        if (u) {
+          users.push({
+            id: u.id,
+            name: u.name,
+            phone: u.phone,
+            username: u.username,
+            about: u.about,
+            avatar: u.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.name)}&backgroundColor=5288c1`
+          });
+        }
+      }
+      res.json({ success: true, accounts: users });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   getMe(req, res, next) {
     try {
       const user = UserModel.findById(req.user.id);

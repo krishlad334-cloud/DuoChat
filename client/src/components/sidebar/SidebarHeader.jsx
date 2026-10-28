@@ -14,10 +14,12 @@ import {
   ShieldCheck,
   Search,
   MessageSquarePlus,
-  Server
+  Server,
+  Smartphone
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import ServerSettingsModal from '../auth/ServerSettingsModal';
+import ConnectPhoneModal from '../auth/ConnectPhoneModal';
 
 export default function SidebarHeader({
   onOpenSearchUser,
@@ -29,6 +31,7 @@ export default function SidebarHeader({
   const { theme, toggleTheme } = useTheme();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+  const [isConnectPhoneOpen, setIsConnectPhoneOpen] = useState(false);
 
   return (
     <>
@@ -166,6 +169,24 @@ export default function SidebarHeader({
 
               <div className="my-2 border-t border-zinc-200 dark:border-[#242f3d]" />
 
+              {/* Login on Phone & Device QR */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                  setIsConnectPhoneOpen(true);
+                }}
+                className="w-full px-3 py-2.5 rounded-xl flex items-center justify-between text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#242f3d] text-sm font-medium transition"
+              >
+                <span className="flex items-center gap-3.5">
+                  <Smartphone className="w-5 h-5 text-[#3390ec] dark:text-[#5288c1]" />
+                  <span>Login on Phone / QR</span>
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#3390ec]/10 dark:bg-[#5288c1]/20 text-[#3390ec] dark:text-[#5288c1] font-semibold">
+                  Multi-Device
+                </span>
+              </button>
+
               {/* Server Connection Setting */}
               <button
                 type="button"
@@ -206,6 +227,12 @@ export default function SidebarHeader({
       <ServerSettingsModal
         isOpen={isServerModalOpen}
         onClose={() => setIsServerModalOpen(false)}
+      />
+
+      {/* Connect Phone QR Modal */}
+      <ConnectPhoneModal
+        isOpen={isConnectPhoneOpen}
+        onClose={() => setIsConnectPhoneOpen(false)}
       />
     </>
   );

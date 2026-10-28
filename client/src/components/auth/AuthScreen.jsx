@@ -14,13 +14,18 @@ import {
   Search,
   Settings2,
   AlertCircle,
-  Wifi
+  Wifi,
+  Smartphone,
+  Zap,
+  QrCode
 } from 'lucide-react';
 import ServerSettingsModal from './ServerSettingsModal';
-import { getApiBaseUrl, testApiConnection } from '../../services/api';
+import ConnectPhoneModal from './ConnectPhoneModal';
+import Avatar from '../common/Avatar';
+import { getApiBaseUrl, testApiConnection, authAPI } from '../../services/api';
 
 export default function AuthScreen() {
-  const { login, register } = useAuth();
+  const { login, register, directLogin } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
 
   // Country selector
@@ -36,12 +41,46 @@ export default function AuthScreen() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [directLoading, setDirectLoading] = useState(null);
   const [error, setError] = useState('');
 
-  // Server connection management
+  // Modals
   const [showServerModal, setShowServerModal] = useState(false);
+  const [showConnectPhoneModal, setShowConnectPhoneModal] = useState(false);
   const [activeApiUrl, setActiveApiUrl] = useState(getApiBaseUrl());
   const [serverStatus, setServerStatus] = useState('checking'); // 'checking' | 'online' | 'offline'
+
+  // Pre-configured Direct 1-Tap Login Accounts
+  const [directAccounts, setDirectAccounts] = useState([
+    {
+      id: 'krish',
+      name: 'Krish',
+      phone: '+91 99999 88888',
+      username: 'krish',
+      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Krish&backgroundColor=5288c1'
+    },
+    {
+      id: 'priya',
+      name: 'Priya',
+      phone: '+91 98765 43210',
+      username: 'priya',
+      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Priya&backgroundColor=ec4899'
+    },
+    {
+      id: 'rahul',
+      name: 'Rahul',
+      phone: '+91 98765 43211',
+      username: 'rahul',
+      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Rahul&backgroundColor=6366f1'
+    },
+    {
+      id: 'alpha',
+      name: 'User Alpha',
+      phone: '+91 91111 22222',
+      username: 'alpha',
+      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Alpha&backgroundColor=10b981'
+    }
+  ]);
 
   // Check server health on mount & when URL changes
   useEffect(() => {
@@ -68,6 +107,45 @@ export default function AuthScreen() {
       window.removeEventListener('duochat:api-url-changed', handleUrlChange);
     };
   }, []);
+
+  // Fetch updated direct accounts from server
+  useEffect(() => {
+    let isMounted = true;
+    const fetchDirect = async () => {
+      try {
+        const res = await authAPI.getDirectAccounts();
+        if (isMounted && res.data?.accounts && res.data.accounts.length > 0) {
+          setDirectAccounts(res.data.accounts);
+        }
+      } catch (e) {
+        // fallback to default list
+      }
+    };
+    fetchDirect();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Auto direct login via URL parameter (e.g. ?direct=priya or ?phone=+919876543210)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const directUser = params.get('direct') || params.get('user') || params.get('phone');
+    if (directUser && directUser !== 'none') {
+      handleDirectLogin(directUser);
+    }
+  }, []);
+
+  const handleDirectLogin = async (identifier) => {
+    setError('');
+    setDirectLoading(identifier);
+    try {
+      await directLogin(identifier);
+    } catch (err) {
+      setError(err.message || `Failed to log in directly as ${identifier}`);
+    } finally {
+      setDirectLoading(null);
+    }
+  };
 
   const filteredCountries = COUNTRIES.filter(c =>
     c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
@@ -411,7 +489,7 @@ export default function AuthScreen() {
         </form>
 
         {/* Telegram-style Quick Mode Switcher */}
-        <div className="mt-5 text-center">
+        <div className="mt-4 text-center">
           <button
             type="button"
             onClick={() => { setIsRegister(!isRegister); setError(''); }}
@@ -423,9 +501,54 @@ export default function AuthScreen() {
           </button>
         </div>
 
-        {/* Server Connection Bar */}
-        <div className="mt-6 pt-4 border-t border-[#242f3d] flex items-center justify-between text-[11px]">
-          <div className="flex items-center gap-1.5 truncate max-w-[210px] text-zinc-400">
+        {/* Direct 1-Tap Login on Phone & Other Devices */}
+        <div className="mt-5 pt-4 border-t border-[#242f3d]">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-[11px] font-bold tracking-wider uppercase text-zinc-300 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
+              <span>Direct 1-Tap Login</span>
+            </span>
+            <span className="text-[10px] text-zinc-400 font-medium">Phone & All Devices</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {directAccounts.map((acc) => {
+              const targetKey = acc.phone || acc.username;
+              const isCurrentLoading = directLoading === targetKey;
+              return (
+                <button
+                  key={acc.id || acc.phone}
+                  type="button"
+                  disabled={loading || Boolean(directLoading)}
+                  onClick={() => handleDirectLogin(targetKey)}
+                  className="flex items-center gap-2 p-2 bg-[#0e1621] hover:bg-[#242f3d] active:scale-[0.98] border border-[#242f3d] hover:border-[#5288c1]/60 rounded-xl text-left transition group disabled:opacity-50"
+                  title={`Direct 1-tap login as ${acc.name}`}
+                >
+                  <div className="relative shrink-0">
+                    <Avatar src={acc.avatar} name={acc.name} size="sm" />
+                    {isCurrentLoading && (
+                      <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center">
+                        <Loader2 className="w-3 h-3 text-white animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-white group-hover:text-[#5288c1] transition truncate">
+                      {acc.name}
+                    </p>
+                    <p className="text-[10px] text-zinc-400 truncate font-mono">
+                      {acc.phone}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Device Pairing & Server Status Bar */}
+        <div className="mt-4 pt-3.5 border-t border-[#242f3d] flex items-center justify-between text-[11px] flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 truncate max-w-[150px] text-zinc-400">
             <span
               className={`w-2 h-2 rounded-full shrink-0 ${
                 serverStatus === 'online'
@@ -439,14 +562,26 @@ export default function AuthScreen() {
               {formatUrlForDisplay(activeApiUrl)}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowServerModal(true)}
-            className="flex items-center gap-1 text-[#5288c1] hover:text-[#6c78e6] font-medium transition shrink-0 ml-2"
-          >
-            <Settings2 className="w-3.5 h-3.5" />
-            <span>Server Settings</span>
-          </button>
+
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
+            <button
+              type="button"
+              onClick={() => setShowConnectPhoneModal(true)}
+              className="flex items-center gap-1 py-1.5 px-2.5 bg-[#5288c1]/15 hover:bg-[#5288c1]/25 text-[#5288c1] hover:text-white rounded-lg text-xs font-semibold transition border border-[#5288c1]/30 active:scale-95"
+              title="Open QR Code and link for mobile phones and other devices"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Phone / QR</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowServerModal(true)}
+              className="p-1.5 text-zinc-400 hover:text-white hover:bg-[#242f3d] rounded-lg transition"
+              title="Server connection settings"
+            >
+              <Settings2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -454,6 +589,12 @@ export default function AuthScreen() {
       <footer className="text-center text-[11px] text-zinc-500 z-10 mt-6">
         Duo Chat Web &bull; Fast, secure & permanent messaging platform
       </footer>
+
+      {/* Connect Phone QR Modal */}
+      <ConnectPhoneModal
+        isOpen={showConnectPhoneModal}
+        onClose={() => setShowConnectPhoneModal(false)}
+      />
 
       {/* Server Settings Modal */}
       <ServerSettingsModal

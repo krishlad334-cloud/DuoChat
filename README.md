@@ -29,7 +29,22 @@
    - Live online presence with green status badge.
    - Immediate read receipts (double ticks update live).
 
-5. **Universal Mobile & Vercel Compatibility**:
+5. **Direct 1-Tap Login on Mobile Phone & All Devices**:
+   - Quick 1-tap direct login buttons at the bottom of the sign-in screen:
+     - 👤 **Krish** (`+91 99999 88888`)
+     - 👤 **Priya** (`+91 98765 43210`)
+     - 👤 **Rahul** (`+91 98765 43211`)
+     - 👤 **User Alpha** (`+91 91111 22222`)
+   - 1-click authentication with zero password typing needed — perfect for testing and cross-device usage.
+   - Auto direct login via URL parameter (e.g. `?direct=priya` or `?phone=+919876543210`).
+
+6. **Instant Mobile Phone Pairing & QR Code Access**:
+   - Built-in **Phone / QR** button at the bottom of the login screen and inside the sidebar menu.
+   - Generates an instant high-resolution QR code and copyable LAN Wi-Fi URL (e.g. `http://192.168.1.28:5173`).
+   - Scan with your phone's camera to immediately open and direct-login on your phone.
+   - Full WebSocket (`/socket.io`) proxying on LAN IP and standalone client serving directly on port 5000.
+
+7. **Universal Mobile & Vercel Compatibility**:
    - Automatic backend resolution (`getApiBaseUrl()` & `getSocketUrl()`).
    - Dynamic CORS matching any Vercel domain, local network IP, or custom host.
    - Built-in **Server Settings Modal** on login and in the sidebar menu — test and configure your backend API directly from any mobile phone screen!
@@ -37,18 +52,31 @@
 
 ---
 
+## 📱 How to Use on Mobile Phones (Same Wi-Fi)
+
+1. Make sure your computer and mobile phone are connected to the same Wi-Fi router.
+2. On your computer screen, click **"Phone / QR"** at the bottom of the sign-in card.
+3. Open the camera app on your phone and point it at the QR Code on screen.
+4. Tap the link that appears:
+   - Your phone opens Duo Chat (e.g. `http://192.168.1.28:5173`).
+   - Tap **👤 Priya** (or any user) under **Direct 1-Tap Login** on your phone.
+   - On your computer, tap **👤 Krish** under **Direct 1-Tap Login**.
+5. Both devices are now logged in and can exchange messages, files, and typing indicators in real time!
+
+---
+
 ## ⚡ Deployment to Vercel & Mobile Setup
 
-### Why Did "Network Error" Happen on Mobile?
-1. **Hardcoded Localhost**: The client Vite build was pointing to `http://localhost:5000/api`. On a mobile phone, `localhost` points to the phone itself where no server is running.
-2. **Mixed Content Security**: The browser blocks unencrypted `http://` calls from an `https://` Vercel site.
-3. **CORS Restrictions**: Standard backend origins blocked requests from `https://*.vercel.app`.
+### Why Did Mobile Connection Previously Fail?
+1. **Missing WebSocket Proxy**: Vite was proxying `/api` but not `/socket.io`, so real-time WebSockets failed on LAN mobile access.
+2. **Hardcoded Localhost**: On mobile phones, `localhost` points to the phone itself.
+3. **Stale LocalStorage**: If PC saved `localhost` in local storage, mobile browsers reused that invalid host.
 
 ### How It Is Resolved:
-- **Intelligent URL Detection**: The client now dynamically determines the correct API domain.
-- **On-Screen Server Settings**: Tap **"Server Settings"** on the login screen (or inside the menu) to enter and test any backend host with a single click.
-- **Universal CORS**: The backend automatically authorizes all Vercel and mobile origins.
-- **Serverless Compatibility**: SQLite and uploads automatically adapt to `/tmp` in serverless environments.
+- **WebSocket Proxying with `ws: true`**: `/socket.io` is proxied seamlessly through Vite on port 5173.
+- **Standalone Express Frontend Serving**: Port 5000 directly serves `client/dist`, allowing phones to use `http://<LAN_IP>:5000` with zero proxying needed.
+- **Mobile-Safe Origin Resolution**: Automatically strips stale `localhost` settings when running on mobile devices.
+- **Network Discovery**: `/api/network-info` dynamically provides the correct LAN IP and pairing URLs.
 
 ---
 
@@ -58,11 +86,14 @@
 ```bash
 npm run dev
 ```
-- **Frontend**: `http://localhost:5173`
-- **Backend API**: `http://localhost:5000`
+- **Frontend**: `http://localhost:5173` (or `http://192.168.1.28:5173` on mobile)
+- **Backend API**: `http://localhost:5000` (or `http://192.168.1.28:5000` on mobile)
 
-### Run Test Suite:
+### Run Test Suites:
 ```bash
+# 32-point comprehensive core debug suite
 node test-deep-debug.js
+
+# Direct login & mobile cross-device test suite
+node test-direct-login.js
 ```
-(Runs 32 automated unit and integration tests across auth, phone search, chat operations, Socket.IO, and file uploads).
