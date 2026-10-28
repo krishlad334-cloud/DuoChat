@@ -196,6 +196,17 @@ const io = new Server(server, {
 
 initSocketManager(io);
 
+// Handle port in-use error gracefully
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\x1b[31m✖ Port ${PORT} is already in use by another running server.\x1b[0m`);
+    console.log(`\x1b[33m💡 Free port ${PORT} by running: Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force\x1b[0m`);
+    process.exit(1);
+  } else {
+    throw err;
+  }
+});
+
 // Only listen if not running under Vercel serverless wrapper
 if (!process.env.VERCEL) {
   server.listen(PORT, '0.0.0.0', () => {
