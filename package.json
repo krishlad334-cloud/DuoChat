@@ -5,15 +5,26 @@
   "scripts": {
     "install:server": "cd server && npm install",
     "install:client": "cd client && npm install",
-    "install:all": "cd server && npm install && cd ../client && npm install",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "seed": "cd server && npm run seed",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
     "dev": "node start-dev.js",
     "build": "cd client && npm run build"
   },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.8.1"
+  },
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=20.0.0"
   },
   "keywords": ["chat", "realtime", "socketio", "react", "express", "sqlite"]
 }

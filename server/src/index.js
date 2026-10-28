@@ -22,6 +22,9 @@ const { notFoundHandler, errorHandler } = require('./middleware/errorMiddleware'
 const app = express();
 const server = http.createServer(app);
 
+// Enable trust proxy for Vercel, mobile reverse-proxies, and cloud environments
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 5000;
 
 // Security Headers with Helmet
@@ -41,22 +44,37 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+
+// Explicit CORS preflight interceptor for mobile browsers & Vercel serverless
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '*';
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 // JSON & URL-encoded parsing
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Rate limiting for auth routes (relaxed to prevent blocking mobile reconnections)
+// Rate limiting for auth routes (relaxed and proxy-safe to prevent blocking mobile reconnections)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   message: { success: false, error: 'Too many login attempts. Please try again later.' }
 });
 app.use('/api/auth/login', authLimiter);
+app.use('/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+app.use('/auth/register', authLimiter);
 
 // Serve static uploads (supports Vercel /tmp or local server uploads)
 const uploadsDir = process.env.VERCEL ? '/tmp/uploads' : path.resolve(__dirname, '../uploads');
@@ -141,11 +159,15 @@ app.get('/', (req, res) => {
   });
 });
 
-// Mount Routes
+// Mount Routes (supports both direct API calls and Vercel serverless rewrites)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
-app.use('/api', messageRoutes);
+app.use('/chats', chatRoutes);
 app.use('/api/users', userRoutes);
+app.use('/users', userRoutes);
+app.use('/api', messageRoutes);
+app.use('/', messageRoutes);
 
 // SPA client-side routing fallback
 if (fs.existsSync(clientDistPath)) {

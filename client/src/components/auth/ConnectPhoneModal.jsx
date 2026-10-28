@@ -50,13 +50,15 @@ export default function ConnectPhoneModal({ isOpen, onClose }) {
       const port = window.location.port;
       const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
 
-      if (isLocalhost && networkInfo?.localIp) {
-        base = `http://${networkInfo.localIp}:${port || '5173'}`;
+      if (isLocalhost) {
+        // Crucial: Mobile phones can NEVER connect to "localhost". Always use the machine's LAN IP!
+        const lanIp = networkInfo?.localIp || '192.168.1.28';
+        base = `http://${lanIp}:${port || '5173'}`;
       } else {
         base = window.location.origin;
       }
     } else {
-      base = 'http://localhost:5173';
+      base = 'http://192.168.1.28:5173';
     }
 
     if (selectedProfile === 'none') {

@@ -152,13 +152,14 @@ export default function AuthScreen() {
     c.code.includes(countrySearch)
   );
 
-  // Full normalized phone number
+  // Full normalized phone number (handles leading 0, spaces, + prefix)
   const getFullPhone = () => {
-    const raw = phoneNumber.trim().replace(/[^0-9]/g, '');
-    const code = selectedCountry.code.replace(/[^0-9]/g, '');
-    if (phoneNumber.startsWith('+')) {
-      return phoneNumber.trim();
+    let clean = phoneNumber.trim();
+    if (clean.startsWith('+')) {
+      return '+' + clean.replace(/[^0-9]/g, '');
     }
+    const raw = clean.replace(/[^0-9]/g, '').replace(/^0+/, '');
+    const code = selectedCountry.code.replace(/[^0-9]/g, '');
     return `+${code}${raw}`;
   };
 
@@ -230,7 +231,8 @@ export default function AuthScreen() {
     error.toLowerCase().includes('network error') ||
     error.toLowerCase().includes('cannot connect') ||
     error.toLowerCase().includes('failed to connect') ||
-    serverStatus === 'offline'
+    error.toLowerCase().includes('econnrefused') ||
+    error.toLowerCase().includes('etimedout')
   );
 
   // Shorten displayed URL for mobile UI

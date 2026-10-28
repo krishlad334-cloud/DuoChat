@@ -32,15 +32,31 @@ const UserModel = {
   findByPhone(phone) {
     if (!phone) return null;
     const digits = cleanPhoneDigits(phone);
-    const rawDigitsOnly = digits.replace(/\+/g, '');
+    const rawDigitsOnly = digits.replace(/[^0-9]/g, '');
+    const last10 = rawDigitsOnly.length >= 10 ? rawDigitsOnly.slice(-10) : rawDigitsOnly;
 
-    const stmt = db.prepare(`
+    // 1. Exact match by stored format or stripped digits
+    let stmt = db.prepare(`
       SELECT * FROM users
       WHERE phone = ?
          OR REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone, ''), ' ', ''), '-', ''), '+', ''), '(', '') = ?
       LIMIT 1
     `);
-    return stmt.get(digits, rawDigitsOnly);
+    let user = stmt.get(digits, rawDigitsOnly);
+    if (user) return user;
+
+    // 2. Fallback match by last 10 digits (handles with/without country code)
+    if (last10.length >= 7) {
+      stmt = db.prepare(`
+        SELECT * FROM users
+        WHERE REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone, ''), ' ', ''), '-', ''), '+', ''), '(', '') LIKE ?
+        LIMIT 1
+      `);
+      user = stmt.get(`%${last10}`);
+      if (user) return user;
+    }
+
+    return null;
   },
 
   findByUsername(username) {
